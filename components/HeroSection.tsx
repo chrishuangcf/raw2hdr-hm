@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 
 export const HeroSection: React.FC = () => {
   const [sliderPosition, setSliderPosition] = useState(50);
-  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMove = (clientX: number) => {
@@ -51,9 +50,6 @@ export const HeroSection: React.FC = () => {
             className="relative h-[400px] md:h-[600px] w-full cursor-col-resize"
             onMouseMove={onMouseMove}
             onTouchMove={onTouchMove}
-            onMouseDown={() => setIsDragging(true)}
-            onMouseUp={() => setIsDragging(false)}
-            onMouseLeave={() => setIsDragging(false)}
           >
              {/* "Before" SDR Image - Simulated with filters for visual effect */}
             <div className="absolute inset-0 w-full h-full bg-slate-900">
