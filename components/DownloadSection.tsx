@@ -16,7 +16,7 @@ export const DownloadSection: React.FC = () => {
         
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
           <a 
-            href="raw2hdr-hm/files/raw2hdr.zip" 
+            href="files/raw2hdr.zip" 
             download
             className="group relative inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-full text-lg font-bold hover:scale-105 transition-transform duration-200 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]"
           >
