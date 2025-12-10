@@ -97,4 +97,4 @@ LUT-based color filters are not included in the beta.
 Once the image is reduced to 8-bit, the HDR (10-bit) highlight and color information is lost, making it impossible to generate a true HDR result from LUT-processed data.
 Because of this limitation, LUTs wouldn’t produce real HDR effects—they would only serve as a creative “fun” filter rather than an HDR-grade color tool—so this feature is not enabled at this time.
 
-[Download Here](raw2hdr.zip)
+[Download Here](dist/files/raw2hdr.zip)
