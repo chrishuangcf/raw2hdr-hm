@@ -1,6 +1,10 @@
 import React from 'react';
 
-export const ColorScience: React.FC = () => {
+export interface ColorScienceProps {
+  onLearnMore?: () => void;
+}
+
+export const ColorScience: React.FC<ColorScienceProps> = ({ onLearnMore }) => {
   return (
     <section id="science" className="grid md:grid-cols-2 gap-16 items-center">
       <div className="order-2 md:order-1 relative group">
@@ -52,6 +56,15 @@ export const ColorScience: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {onLearnMore && (
+          <button
+            onClick={onLearnMore}
+            className="mt-8 px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg shadow-purple-900/30"
+          >
+            Learn More
+          </button>
+        )}
       </div>
     </section>
   );

@@ -6,9 +6,11 @@ import { ColorScience } from './components/ColorScience';
 import { DownloadSection } from './components/DownloadSection';
 import { Navbar } from './components/Navbar';
 import { BetaDisclaimer } from './components/BetaDisclaimer';
+import { HDRDetailsModal } from './components/HDRDetailsModal';
 
 const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [showHDRModal, setShowHDRModal] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,12 +30,14 @@ const App: React.FC = () => {
         <div className="container mx-auto px-6 space-y-32">
           <FeatureGrid />
           <NitExplanation />
-          <ColorScience />
+          <ColorScience onLearnMore={() => setShowHDRModal(true)} />
           <BetaDisclaimer />
         </div>
       </main>
 
       <DownloadSection />
+
+      <HDRDetailsModal isOpen={showHDRModal} onClose={() => setShowHDRModal(false)} />
     </div>
   );
 };
