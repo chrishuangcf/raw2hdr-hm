@@ -1,0 +1,5 @@
+{
+  "name": "HDR vs SDR: The Bit Depth Deep Dive",
+  "description": "An interactive educational visualization demonstrating the technical differences between SDR (8-bit Rec.709) and HDR (10-bit PQ/Rec.2020) using interactive histograms and gradient simulations.",
+  "requestFramePermissions": []
+}

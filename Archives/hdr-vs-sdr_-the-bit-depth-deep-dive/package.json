@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "hdr-vs-sdr:-the-bit-depth-deep-dive",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,14 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "react-router-dom": "^7.10.1",
-    "three": "^0.181.2",
-    "lucide-react": "^0.556.0",
-    "@react-three/fiber": "^9.4.2",
-    "@react-three/drei": "^10.7.7",
-    "framer-motion": "^12.23.25"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "lucide-react": "^0.561.0",
+    "d3": "^7.9.0",
+    "recharts": "^3.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
