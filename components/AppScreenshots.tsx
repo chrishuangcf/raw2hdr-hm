@@ -1,35 +1,40 @@
 import React from 'react';
+import selecting from '../public/images/selecting_files_to_process.png';
+import processing from '../public/images/processing_hdr.png';
+import exif from '../public/images/exif_view.png';
+import editor from '../public/images/editor.png';
+import loading from '../public/images/loading_raw.png';
 
 const screenshots = [
   { 
     id: 1, 
     title: "Batch Selection",
     alt: "Gallery View showing RAW selection", 
-    src: "/images/selecting_files_to_process.png" 
+    src: selecting
   },
   { 
     id: 2, 
     title: "Smart Processing",
     alt: "Processing queue status", 
-    src: "/images/processing_hdr.png" 
+    src: processing
   },
   { 
     id: 3, 
     title: "Deep Metadata",
     alt: "EXIF metadata display", 
-    src: "/images/exif_view.png" 
+    src: exif
   },
   { 
     id: 4, 
     title: "Precision Edit",
     alt: "Editing interface with sunset", 
-    src: "/images/editor.png" 
+    src: editor
   },
   { 
     id: 5, 
     title: "Loading Raws",
     alt: "Loading screen share with Apple Photos Albums", 
-    src: "/images/loading_raw.png" 
+    src: loading
   },
 ];
 
