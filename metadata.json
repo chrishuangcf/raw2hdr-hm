@@ -1,4 +1,5 @@
 {
-  "name": "Raw2HDR Magic",
-  "description": "A high-performance landing page showcasing a RAW to HDR image converter application, featuring interactive comparisons and educational visualizations."
+  "name": "raw2hdr",
+  "description": "A dynamic landing page for the raw2hdr iOS application, featuring interactive HDR vs SDR visualizations.",
+  "requestFramePermissions": []
 }
