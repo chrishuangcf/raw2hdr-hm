@@ -17,7 +17,11 @@ const Footer: React.FC<{ onPrivacyPolicyClick?: () => void }> = ({ onPrivacyPoli
           </p>
           
           <div className="flex justify-center pt-4">
-             <Button size="lg" className="px-10 py-5 text-xl shadow-[0_0_40px_rgba(37,99,235,0.3)]">
+             <Button 
+               size="lg" 
+               className="px-10 py-5 text-xl shadow-[0_0_40px_rgba(37,99,235,0.3)]"
+               onClick={() => window.open('https://apps.apple.com/us/app/raw2hdr/id6758991441', '_blank')}
+             >
                 <Download className="mr-2 h-6 w-6" />
                 Download on the App Store
              </Button>
