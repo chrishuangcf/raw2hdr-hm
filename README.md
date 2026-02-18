@@ -96,5 +96,3 @@ LUT-based color filters are not included in the beta.
 * Technically, most LUTs are designed for Rec.709, which typically operates in an 8-bit SDR colorspace. To apply these LUTs correctly, the RAW image would need to be converted down into an 8-bit RGB format before the LUT can be used.
 Once the image is reduced to 8-bit, the HDR (10-bit) highlight and color information is lost, making it impossible to generate a true HDR result from LUT-processed data.
 Because of this limitation, LUTs wouldn’t produce real HDR effects—they would only serve as a creative “fun” filter rather than an HDR-grade color tool—so this feature is not enabled at this time.
-
-[Download Here](dist/files/raw2hdr.zip)
