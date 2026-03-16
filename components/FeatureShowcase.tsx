@@ -8,56 +8,48 @@ const features = [
     description: "50+ curated color profiles tuned for Fujifilm (PROVIA, Velvia, ASTIA, Classic Chrome, ACROS…), Panasonic V-Log, Leica, classic film stocks, and cinematic grades. Pro feature.",
     icon: <Film />,
     color: "amber",
-    image: "/raw2hdr-hm/images/editor.png"
   },
   {
     title: "Advanced Editor",
     description: "Exposure (±3 EV), contrast, highlights, shadows, black point, white balance, saturation, and vibrance — all with a live histogram showing when highlights clip.",
     icon: <Sliders />,
     color: "blue",
-    image: "/raw2hdr-hm/images/editor.png"
   },
   {
     title: "Noise Reduction",
     description: "ISO-aware auto NR suggestions. Loupe magnifier for pixel-level inspection with an edge-detection overlay to see exactly where detail is preserved vs. smoothed.",
     icon: <Crosshair />,
     color: "emerald",
-    image: "/raw2hdr-hm/images/loading_raw.png"
   },
   {
     title: "Lens Correction",
     description: "Automatic distortion and vignetting correction from a built-in lens database. Manual override with A/B/C distortion and K1/K2/K3 vignetting coefficients.",
     icon: <ScanLine />,
     color: "purple",
-    image: "/raw2hdr-hm/images/loading_raw.png"
   },
   {
     title: "Frame Designs",
     description: "8 customisable overlays — EXIF card, film strip with sprocket holes, journal with live weather & GPS, palette with dominant colour swatches, and more.",
     icon: <Layout />,
     color: "rose",
-    image: "/raw2hdr-hm/images/exif_view.png"
   },
   {
     title: "Batch Processing",
     description: "Select and process multiple RAW files in one tap. Pick from Photos, Files, iCloud Drive, Dropbox, or Google Drive. Export at 25%, 50%, 75%, or full resolution.",
     icon: <Layers />,
     color: "cyan",
-    image: "/raw2hdr-hm/images/selecting_files_to_process.png"
   },
   {
     title: "HDR Preview & Compare",
     description: "Side-by-side split-screen comparison of your processed HDR versus the original SDR. Pinch to zoom, pan, and inspect every detail in the full-screen viewer.",
     icon: <Wand2 />,
     color: "orange",
-    image: "/raw2hdr-hm/images/processing_hdr.png"
   },
   {
     title: "EXIF Preservation",
     description: "Camera make/model, lens, focal length, aperture, shutter speed, ISO, GPS coordinates, and timestamp all carried through to every exported file.",
     icon: <Aperture />,
     color: "violet",
-    image: "/raw2hdr-hm/images/exif_view.png"
   },
 ];
 
@@ -105,14 +97,6 @@ const FeatureShowcase: React.FC = () => {
               </div>
               <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
               <p className="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
-
-              <div className="mt-6 rounded-xl overflow-hidden border border-white/10 bg-black/40">
-                <img
-                  src={feature.image}
-                  alt={feature.title}
-                  className="w-full object-cover object-top max-h-40 group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
             </motion.div>
           ))}
         </div>
