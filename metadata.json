@@ -1,0 +1,5 @@
+{
+  "name": "raw2hdr",
+  "description": "A dynamic landing page for the raw2hdr iOS application, featuring interactive HDR vs SDR visualizations.",
+  "requestFramePermissions": []
+}
