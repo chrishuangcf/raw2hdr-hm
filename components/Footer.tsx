@@ -27,7 +27,7 @@ const Footer: React.FC<{ onPrivacyPolicyClick?: () => void }> = ({ onPrivacyPoli
              </Button>
           </div>
           <p className="text-sm text-gray-500 mt-4">
-             Requires iOS 14.0+ • iPhone X or later recommended for HDR viewing
+             iOS 14.0+ · One-time purchase · No subscription · All processing on-device
           </p>
         </div>
 
@@ -38,27 +38,27 @@ const Footer: React.FC<{ onPrivacyPolicyClick?: () => void }> = ({ onPrivacyPoli
               Privacy First
             </h4>
             <p className="text-sm text-gray-500">
-              No data collection. No internet required. All processing happens locally on your device. Your RAW files never leave your phone.
+              No data collection. No internet required. All RAW processing runs entirely on-device using Apple's CIRAWFilter engine. Your photos never leave your iPhone.
             </p>
           </div>
-          
+
           <div className="space-y-4">
             <h4 className="text-white font-bold flex items-center gap-2">
               <Camera className="w-5 h-5 text-blue-500" />
-              Supported Cameras
+              Supported RAW Formats
             </h4>
             <p className="text-sm text-gray-500">
-              Sony, Fujifilm (inc. X-Trans), Canon, Leica, and all formats supported by iOS RAW engine.
+              Fujifilm (.RAF) · Canon (.CR2, .CR3) · Sony (.ARW) · Panasonic (.RW2) · Olympus/OM (.ORF) · Leica (.DNG) · Universal DNG
             </p>
           </div>
 
           <div className="space-y-4">
             <h4 className="text-white font-bold flex items-center gap-2">
               <Smartphone className="w-5 h-5 text-purple-500" />
-              Where to View
+              Where to View HDR
             </h4>
             <p className="text-sm text-gray-500">
-              Best on iPhone X/11/12/13/14/15 Pro screens. Share directly to Instagram and Threads with HDR preserved.
+              Best on iPhone 12 Pro and later (ProMotion OLED). Share directly to Instagram, Threads, and iMessage with HDR preserved. BT.2100 HLG format — backward compatible on any screen.
             </p>
           </div>
         </div>

@@ -466,45 +466,44 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
               number="08"
               icon={<FileImage className="w-5 h-5 text-cyan-400" />}
               accentColor="bg-cyan-500/10"
-              title="HDR HEIC Technology"
-              subtitle="One file that works beautifully everywhere"
+              title="HDR HEIC with HLG"
+              subtitle="One file that works beautifully on every screen"
               plain={
                 <>
                   <p>
-                    Here's the clever part: an HDR HEIC file is actually two images in one. This solves a real problem — how do you make an HDR photo that still looks great on someone's older screen that can't display HDR?
+                    raw2hdr exports your photos as HEIC files encoded with the <strong className="text-white">BT.2100 HLG (Hybrid Log-Gamma)</strong> colour space — the same HDR standard used by broadcast television and modern Apple devices. HLG is cleverly designed to be backwards compatible without needing two separate images.
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
-                      <div className="text-lg">🖼</div>
+                      <div className="text-lg">📺</div>
                       <div>
-                        <div className="text-sm font-bold text-white">The SDR Base Image</div>
-                        <div className="text-sm text-gray-400">A standard, beautifully processed photo that looks great on any screen — your laptop, a TV, social media, printed. This is what older devices display.</div>
+                        <div className="text-sm font-bold text-white">On SDR screens</div>
+                        <div className="text-sm text-gray-400">The HLG signal is automatically tone-mapped by the OS to a well-exposed SDR photo. The image looks like any normal, correctly-exposed HEIC — on a laptop, TV, or social media.</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-4 p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
                       <div className="text-lg">✨</div>
                       <div>
-                        <div className="text-sm font-bold text-cyan-300">The HDR Gain Map</div>
-                        <div className="text-sm text-gray-400">A second, invisible layer of data that tells HDR displays: "this area should be 3× brighter, this area should be 1.5× brighter." On HDR screens, the system combines both layers to reconstruct the full HDR image with glowing highlights and deep shadows.</div>
+                        <div className="text-sm font-bold text-cyan-300">On HDR screens (iPhone 12 Pro+, iPad Pro, Apple TV)</div>
+                        <div className="text-sm text-gray-400">The full HLG dynamic range is revealed — highlights glow above SDR white, shadows retain detail, and the Rec.2020 gamut delivers colours that sRGB simply cannot show.</div>
                       </div>
                     </div>
                   </div>
                   <Callout variant="info">
-                    <strong>The result:</strong> One file. On an old phone, it shows a great photo. On a new iPhone with an OLED display, the same file shows a stunning HDR image. No conversion needed. No compatibility issues.
+                    <strong>The result:</strong> One file. One sharing workflow. The same HEIC looks correct on an old screen and stunning on a new iPhone OLED — with no conversion or special app required.
                   </Callout>
                 </>
               }
               technical={
                 <>
-                  <p>HDR HEIC (ISO 23008-12 with Apple Gain Map extension) file structure:</p>
+                  <p>HEIC output with BT.2100 HLG (kCGColorSpaceITUR_2100_HLG) colour space:</p>
                   <ul className="list-disc list-inside space-y-2 mt-2 text-gray-400">
-                    <li><span className="text-gray-300">Primary item:</span> SDR HEVC-encoded image, typically 8 or 10-bit, Display P3 or sRGB, tone-mapped to SDR reference white (203 nits in PQ terms, or 1.0 in EDR).</li>
-                    <li><span className="text-gray-300">Gain map item:</span> Secondary HEVC-encoded image stored as an auxiliary image item (auxC type: <code>urn:com:apple:photo:2020:aux:hdrgainmap</code>). Encodes per-pixel log₂ gain values, typically in 8-bit with metadata describing min/max gain and HDR headroom ratio.</li>
-                    <li><span className="text-gray-300">Metadata:</span> <code>tmap</code> box contains gain map parameters — <code>hdr_headroom</code> (ratio of HDR peak to SDR white), <code>offset_sdr</code>, <code>offset_hdr</code>, <code>map_gamma</code>.</li>
+                    <li><span className="text-gray-300">Colour space:</span> ITU-R BT.2020 primaries (Rec.2020 wide gamut), BT.2100 HLG transfer function. Encoded via <code>CGImageDestination</code> with <code>kCGColorSpaceITUR_2100_HLG</code>.</li>
+                    <li><span className="text-gray-300">HLG transfer function:</span> A combined logarithmic/gamma curve defined as <code>r(E) = a·ln(12E−b)+c</code> for E &gt; 1/12, and <code>r(E) = √(3E)</code> for E ≤ 1/12. Scene-linear values above 1.0 are preserved in the log segment — these are the HDR highlights.</li>
+                    <li><span className="text-gray-300">SDR compatibility:</span> Apple's CoreImage/EDR tone-mapping pipeline automatically maps HLG content to SDR reference white on non-HDR displays. No separate SDR image is stored.</li>
+                    <li><span className="text-gray-300">Bit depth:</span> 10-bit HEVC encoding (Main 10 profile) preserves the 1,024 quantisation levels per channel required for smooth HLG gradients.</li>
                   </ul>
-                  <p className="mt-3">Reconstruction on-device: <code>HDR_pixel = SDR_pixel × 2^(gain_map_pixel × hdr_headroom)</code>. The system multiplies each SDR pixel by the gain factor stored in the map, raising specific regions above SDR white into the display's HDR headroom.</p>
-                  <p className="mt-3">Compatibility fallback: devices that don't parse the gain map item simply render the primary SDR item. The HEIF container's <code>iloc</code> and <code>iref</code> boxes ensure backwards-compatible parsing.</p>
-                  <p className="mt-3">Apple's implementation is specified in the ISO 21496-1 draft (Gain Map HDR Image File Format Specification), which aims to standardise the approach across vendors.</p>
+                  <p className="mt-3">Apple EDR (Extended Dynamic Range) renders HLG content by mapping the scene-referred HLG signal into EDR headroom above SDR white (1.0), dynamically adjusting for the display's actual peak brightness and ambient light conditions.</p>
                 </>
               }
             />
@@ -517,7 +516,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
               icon={<Cpu className="w-5 h-5 text-indigo-400" />}
               accentColor="bg-indigo-500/10"
               title="RAW to HDR Workflow"
-              subtitle="From sensor data to a display-ready HDR image"
+              subtitle="From sensor data to BT.2100 HLG HEIC — on your iPhone"
               plain={
                 <>
                   <p>
@@ -529,12 +528,12 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5 space-y-3">
                     <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Processing pipeline</div>
                     {[
-                      ['Camera sensor', 'Captures light as raw electrical measurements'],
-                      ['RAW file', 'Stores sensor data at 12–14 bit precision'],
-                      ['RAW processing', 'Demosaicing, white balance, tone adjustments in 16-bit'],
-                      ['SDR base image', 'Tone-mapped for universal compatibility'],
-                      ['HDR gain map', 'Brightness ratio map encoding highlights above SDR'],
-                      ['HDR HEIC file', 'Both layers packaged in one compatible file'],
+                      ['Camera sensor', 'Captures light as raw electrical measurements (12–14 bit Bayer/X-Trans mosaic)'],
+                      ['RAW file', 'Stores unprocessed sensor data — .RAF, .CR2/.CR3, .ARW, .RW2, .ORF, .DNG'],
+                      ['CIRAWFilter', 'Apple\'s native RAW decoder: demosaicing + camera-specific colour profile applied'],
+                      ['16-bit linear working space', 'sRGB → linear RGB → XYZ → Rec.2020 colour transform'],
+                      ['HLG transfer function', 'BT.2100 HLG curve maps linear scene values including HDR highlights above 1.0'],
+                      ['HEIC export', '10-bit HEVC-encoded HEIC with kCGColorSpaceITUR_2100_HLG colour space'],
                     ].map(([step, desc], i) => (
                       <div key={i} className="flex items-start gap-3">
                         <div className="w-5 h-5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 text-xs flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</div>
@@ -549,14 +548,14 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
               }
               technical={
                 <>
-                  <p>The RAW → HDR HEIC pipeline in detail:</p>
+                  <p>The RAW → HDR HEIC pipeline used by raw2hdr:</p>
                   <ol className="list-decimal list-inside space-y-2 mt-2 text-gray-400">
-                    <li><span className="text-gray-300">RAW decode:</span> LibRaw or equivalent decodes the Bayer/X-Trans sensor mosaic. Output: 16-bit linear light per-channel (RGB or XYZ).</li>
-                    <li><span className="text-gray-300">Demosaicing:</span> AHD, AMaZE, or similar interpolation. Converts single-channel Bayer grid to full-colour 16-bit RGB.</li>
-                    <li><span className="text-gray-300">White balance &amp; colour matrix:</span> Camera-specific colour matrix (from EXIF/DNG metadata) transforms camera-native RGB to a standard colour space (e.g., ProPhoto or linear sRGB).</li>
-                    <li><span className="text-gray-300">Tone mapping for SDR base:</span> A tone curve (e.g., modified Reinhard, filmic S-curve) maps 16-bit linear values to 8/10-bit SDR range. This is the "SDR base image."</li>
-                    <li><span className="text-gray-300">Gain map computation:</span> For each pixel, compute <code>log₂(HDR_linear / SDR_linear)</code>. Normalise to [0, 1] using the target HDR headroom. Quantise to 8-bit. This is the gain map.</li>
-                    <li><span className="text-gray-300">HEIC encoding:</span> Encode SDR base with HEVC (Main or Main 10 profile). Encode gain map as auxiliary image. Write gain map metadata to <code>tmap</code> box. Package in HEIF container.</li>
+                    <li><span className="text-gray-300">RAW decode via CIRAWFilter:</span> Apple's native <code>CIRAWFilter</code> API decodes the Bayer/X-Trans mosaic, applies the camera's embedded colour profile, and outputs a 16-bit linear CIImage. Supports RAF, CR2/CR3, ARW, RW2, ORF, DNG.</li>
+                    <li><span className="text-gray-300">Editor adjustments:</span> Exposure (±3 EV), contrast, highlights, shadows, black point, white balance, saturation, and vibrance are applied in linear light. Noise reduction (luminance &amp; chroma NR via <code>CIRAWFilter</code>) is applied at this stage.</li>
+                    <li><span className="text-gray-300">LUT application (optional, Pro):</span> 33-grid 3D cube LUTs (.cube) are applied in the appropriate input colour space (sRGB, F-Log2, V-Log, L-Log, or linear), then converted to Rec.2020 linear for consistency.</li>
+                    <li><span className="text-gray-300">Colour transform to Rec.2020:</span> sRGB → linear sRGB → XYZ (D65) → Rec.2020 linear RGB. Preserves the wide-gamut colour information captured by the sensor.</li>
+                    <li><span className="text-gray-300">HLG transfer function:</span> BT.2100 HLG curve is applied. Scene-linear values above 1.0 (the highlights beyond SDR white) are preserved in the logarithmic segment of the HLG curve — this is where the HDR headroom lives.</li>
+                    <li><span className="text-gray-300">HEIC encoding:</span> <code>CGImageDestination</code> encodes the result as a 10-bit HEVC image with <code>kCGColorSpaceITUR_2100_HLG</code> as the embedded colour space profile. Full EXIF metadata is preserved.</li>
                   </ol>
                 </>
               }
@@ -627,23 +626,23 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
               number="11"
               icon={<Settings className="w-5 h-5 text-teal-400" />}
               accentColor="bg-teal-500/10"
-              title="Application Features"
-              subtitle="A complete RAW processing and HDR authoring tool"
+              title="raw2hdr — App Features"
+              subtitle="A complete on-device RAW processing and HDR authoring tool for iPhone"
               plain={
                 <>
                   <p>
-                    raw2hdr is designed to handle the entire process — from opening a RAW file to exporting a finished HDR HEIC — without requiring any knowledge of the technical details described in this guide. Here's what you can do with it:
+                    raw2hdr handles the entire workflow — from importing a RAW file to exporting finished HDR HEIC — without needing any desktop software. Everything runs on your iPhone using Apple's native processing APIs.
                   </p>
                   <div className="grid sm:grid-cols-2 gap-3">
                     {[
-                      { title: 'RAW Editing', desc: 'Adjust exposure, recover highlights and shadows, set white balance, and apply tone curves — all in 16-bit precision.' },
-                      { title: 'HDR and SDR Export', desc: 'Export true HDR HEIC for modern devices, or SDR for universal sharing — or both at once.' },
-                      { title: 'HDR / SDR Comparison', desc: 'Side-by-side split-screen preview with histograms so you can see exactly how the image looks in each mode.' },
-                      { title: 'Film Simulation & LUTs', desc: 'Apply film looks and custom color grades before finalising the HDR output.' },
-                      { title: 'Lens Correction & Noise Reduction', desc: 'Automatic correction for distortion and chromatic aberration. Noise reduction for high-ISO shots and shadow recovery.' },
-                      { title: 'Photo Frames & Layout', desc: 'Elegant borders and custom compositions that enhance the HDR presentation and work beautifully on social media.' },
-                      { title: 'EXIF Viewer', desc: 'Full metadata display including camera, lens, shutter speed, ISO, and aperture.' },
-                      { title: 'HDR Slideshow & Sharing', desc: 'Showcase images in HDR slideshow mode and share directly to Instagram, Threads, iMessage, and more.' },
+                      { title: 'Film Simulation LUTs (Pro)', desc: '50+ curated 3D LUTs for Fujifilm (PROVIA, Velvia, ASTIA, Classic Chrome, ACROS, ETERNA…), Panasonic V-Log, Leica, classic film stocks, and cinematic grades. Live scrollable preview strip.' },
+                      { title: 'Advanced Editor', desc: 'Exposure (±3 EV), contrast, highlights, shadows, black point, white balance, saturation, vibrance. Live histogram shows clipping in real time. One-tap auto exposure.' },
+                      { title: 'Noise Reduction', desc: 'ISO-aware: the app reads ISO from your RAW and suggests optimal NR strength. Loupe magnifier for pixel-level inspection with edge-detection overlay.' },
+                      { title: 'Lens Correction', desc: 'Automatic distortion and vignetting correction from a built-in lens database. Manual A/B/C distortion and K1/K2/K3 vignetting override for unsupported lenses.' },
+                      { title: '8 Frame Designs', desc: 'EXIF card, Split layout, Film strip (35mm sprocket holes), Journal (live weather + GPS), Palette (dominant colour swatches), and more. Fully customisable.' },
+                      { title: 'Batch Processing', desc: 'Import from Photos, Files, iCloud Drive, Dropbox, or Google Drive. Process multiple RAW files in one tap. Pro: export at 25%, 50%, 75%, or 100% resolution.' },
+                      { title: 'HDR / SDR Compare & Gallery', desc: 'Side-by-side split-screen comparison, full-screen viewer with pinch-to-zoom, slideshow mode, and image rotation saved to EXIF.' },
+                      { title: 'EXIF Preservation', desc: 'Camera make/model, lens, focal length, aperture, shutter speed, ISO, GPS, and timestamp carried through to every exported file.' },
                     ].map((f, i) => (
                       <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
                         <div className="text-sm font-bold text-white">{f.title}</div>
@@ -651,20 +650,23 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                       </div>
                     ))}
                   </div>
+                  <Callout variant="note">
+                    <strong>Free vs Pro:</strong> The free tier includes HDR HEIC export, editor, histogram, noise reduction, lens correction, and frame designs — at 25% output resolution. <strong>Pro (one-time purchase)</strong> unlocks full-resolution export (25%/50%/75%/100%) and all 50+ Film Simulation LUTs. No subscription.
+                  </Callout>
                 </>
               }
               technical={
                 <>
-                  <p>Technical implementation highlights:</p>
+                  <p>Technical implementation highlights (v0.1.8):</p>
                   <ul className="list-disc list-inside space-y-2 mt-2 text-gray-400">
-                    <li><span className="text-gray-300">RAW decode:</span> Supports all major camera RAW formats via LibRaw (CR2/CR3, NEF, ARW, RAF, ORF, RW2, DNG, and others).</li>
-                    <li><span className="text-gray-300">Processing precision:</span> 16-bit floating-point pipeline throughout; all tone adjustments operate in linear light before applying the display transfer function.</li>
-                    <li><span className="text-gray-300">Gain map computation:</span> Per-pixel log₂ gain derived from the difference between the 16-bit linear source and the SDR tone-mapped output. Stored at 8-bit with HDR headroom metadata.</li>
-                    <li><span className="text-gray-300">HEIC encoding:</span> HEVC Main 10 profile for SDR base (10-bit); 8-bit auxiliary for gain map. Encoded via VideoToolbox (hardware-accelerated HEVC on Apple Silicon and A-series).</li>
-                    <li><span className="text-gray-300">Colour management:</span> ICC profile-aware pipeline; Display P3 as default output primaries; optional Rec.2020 for maximum future-proofing.</li>
-                    <li><span className="text-gray-300">LUT support:</span> 3D LUT (.cube) application in log or linear space, selectable before or after tone mapping.</li>
-                    <li><span className="text-gray-300">Lens correction:</span> Lensfun database for distortion, TCA, and vignetting; DNG embedded opcodes supported where available.</li>
-                    <li><span className="text-gray-300">Noise reduction:</span> Luminance and chrominance NR using frequency-domain techniques; applied pre-demosaic where beneficial for high-ISO RAW files.</li>
+                    <li><span className="text-gray-300">RAW decode engine:</span> Apple <code>CIRAWFilter</code> — native iOS RAW decoder. Handles demosaicing, camera colour profiles, and white balance. Supports .RAF, .CR2/.CR3, .ARW, .RW2, .ORF, .DNG.</li>
+                    <li><span className="text-gray-300">Processing precision:</span> 16-bit CIImage pipeline throughout. All tone adjustments (exposure, contrast, shadows, highlights, black point) operate in linear light before the colour transform.</li>
+                    <li><span className="text-gray-300">Colour transform:</span> sRGB → linear sRGB → XYZ (D65) → Rec.2020 linear RGB. Ensures the wide-gamut BT.2020 primaries are used in the HDR output.</li>
+                    <li><span className="text-gray-300">HLG encoding:</span> BT.2100 HLG transfer function applied to Rec.2020 linear values. Output written via <code>CGImageDestination</code> with <code>kCGColorSpaceITUR_2100_HLG</code>. Encoded as 10-bit HEVC (Main 10 profile).</li>
+                    <li><span className="text-gray-300">LUT support:</span> 33-grid 3D cube (.cube) files. Multiple input gamma profiles supported: F-Log2, V-Log, L-Log, Mi-Log, sRGB. Real-time preview with cached linear RGB handles.</li>
+                    <li><span className="text-gray-300">Noise reduction:</span> Luminance and chrominance NR via <code>CIRAWFilter</code> NR parameters. ISO metadata read from EXIF to auto-suggest strength. Loupe shows edge-detected preview for precise tuning.</li>
+                    <li><span className="text-gray-300">Lens correction:</span> Lensfun database for per-lens distortion (A/B/C polynomial) and vignetting (K1/K2/K3) correction. Manual override available for unlisted lenses.</li>
+                    <li><span className="text-gray-300">State management:</span> Flutter + Riverpod. Native iOS processing via Objective-C++ FFI bridge (<code>native_bridge.mm</code>) to CoreImage/CoreGraphics APIs.</li>
                   </ul>
                 </>
               }

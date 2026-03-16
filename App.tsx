@@ -109,10 +109,10 @@ const App: React.FC = () => {
                </div>
                <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-sm group hover:border-emerald-500/30 transition-colors">
                   <h4 className="font-bold mb-2 flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-emerald-400" /> Gain Map Technology
+                    <Layers className="w-4 h-4 text-emerald-400" /> BT.2100 HLG Output
                   </h4>
                   <p className="text-sm text-gray-500">
-                    Our HEIC files store an SDR base + HDR Gain Map, allowing the same file to display perfectly on both SDR and HDR screens.
+                    Output uses the HLG (Hybrid Log-Gamma) transfer function with Rec.2020 colour space — the same HDR standard used by broadcast TV and modern Apple devices. One file, every screen.
                   </p>
                </div>
             </div>
@@ -174,13 +174,13 @@ const App: React.FC = () => {
             </div>
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Wider Gamut. Richer Life.</h2>
             <p className="text-gray-400 text-lg leading-relaxed">
-              Color spaces define the palette available to an image. HDR uses Rec.2020, capturing colors that sRGB simply cannot represent—like the deep neon of a city at night or the intense saturation of a sunset.
+              Colour spaces define the palette an image can contain. raw2hdr transforms your RAW's colour data all the way to <strong className="text-white">Rec.2020</strong> (BT.2020) — the wide-gamut standard used in HDR broadcast. Those are the vivid reds, neon blues, and saturated greens your sensor captured but JPEG discards.
             </p>
             <div className="grid grid-cols-1 gap-4">
               {[
-                { name: 'sRGB', desc: 'Standard web color. Misses 60% of visible color.', color: 'bg-red-500' },
-                { name: 'Display P3', desc: 'Modern Apple/Android devices. Richer reds/greens.', color: 'bg-emerald-500' },
-                { name: 'Rec.2020', desc: 'The HDR standard. Captures nearly all visible color.', color: 'bg-blue-500' },
+                { name: 'sRGB', desc: 'Covers ~35% of visible colour. The standard for JPEG and the web — vivid colours are mapped down or clipped.', color: 'bg-red-500' },
+                { name: 'Display P3', desc: 'iPhone native display gamut. ~25% wider than sRGB. Richer reds and greens on Apple screens.', color: 'bg-emerald-500' },
+                { name: 'Rec.2020 (BT.2020)', desc: "raw2hdr's output colour space. ~75% of visible colour. Paired with BT.2100 HLG for true HDR on Apple devices.", color: 'bg-blue-500' },
               ].map((space, i) => (
                 <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
                   <div className={`w-3 h-3 rounded-full ${space.color}`} />
@@ -203,25 +203,25 @@ const App: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-12 relative z-10 items-center">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono uppercase tracking-widest">
-                <Layers className="w-3 h-3" /> 05. Gain Map
+                <Layers className="w-3 h-3" /> 05. HLG Format
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">One File. <span className="text-blue-400">Two Worlds.</span></h2>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">One File. <span className="text-blue-400">Every Screen.</span></h2>
               <p className="text-gray-400 text-lg leading-relaxed">
-                HDR HEIC is a hybrid format. It stores a standard SDR image for compatibility and a high-resolution "Gain Map" that tells HDR displays exactly how much to brighten each pixel.
+                raw2hdr outputs HEIC encoded with <strong className="text-white">BT.2100 HLG</strong> (Hybrid Log-Gamma) — the broadcast HDR standard. HLG's clever curve design means the same file looks correct on SDR screens and stunning on HDR screens, with no conversion or separate export needed.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
                   <div className="mt-1 p-1 rounded bg-white/10 text-white"><ShieldCheck className="w-4 h-4" /></div>
                   <div>
-                    <div className="font-bold text-white">SDR Base Layer</div>
-                    <div className="text-sm text-gray-500">Ensures your photo looks great on older screens and social media.</div>
+                    <div className="font-bold text-white">On any screen</div>
+                    <div className="text-sm text-gray-500">Apple's OS tone-maps the HLG signal to SDR on older devices — your photo looks like a perfectly exposed HEIC everywhere.</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <div className="mt-1 p-1 rounded bg-blue-500/20 text-blue-400"><Zap className="w-4 h-4" /></div>
                   <div>
-                    <div className="font-bold text-blue-400">HDR Gain Map</div>
-                    <div className="text-sm text-gray-500">Unlocks the peak brightness of OLED and Mini-LED displays.</div>
+                    <div className="font-bold text-blue-400">On iPhone 12 Pro+ / iPad Pro / Apple TV</div>
+                    <div className="text-sm text-gray-500">The full HLG headroom renders above SDR white — highlights glow, shadows deepen, and Rec.2020 colours come alive.</div>
                   </div>
                 </div>
               </div>
@@ -234,16 +234,16 @@ const App: React.FC = () => {
                     whileHover={{ y: -10 }}
                   >
                      <img src="https://picsum.photos/seed/gainmap-demo/200/300" className="w-full h-full object-cover opacity-80" referrerPolicy="no-referrer" />
-                     <div className="absolute inset-0 flex items-center justify-center text-[8px] md:text-[10px] font-mono font-bold text-white bg-black/20">SDR BASE</div>
+                     <div className="absolute inset-0 flex items-center justify-center text-[8px] md:text-[10px] font-mono font-bold text-white bg-black/20">RAW DECODE</div>
                   </motion.div>
-                  <div className="text-xl font-bold text-gray-500">+</div>
-                  {/* Gain Map Layer */}
-                  <motion.div 
+                  <div className="text-xl font-bold text-gray-500">→</div>
+                  {/* HLG Layer */}
+                  <motion.div
                     className="w-24 h-36 md:w-32 md:h-48 rounded-lg bg-zinc-900 border border-white/20 relative overflow-hidden"
                     whileHover={{ y: -10 }}
                   >
                      <img src="https://picsum.photos/seed/gainmap-demo/200/300?grayscale" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                     <div className="absolute inset-0 flex items-center justify-center text-[8px] md:text-[10px] font-mono font-bold text-white bg-black/40 text-center px-2">GAIN MAP</div>
+                     <div className="absolute inset-0 flex items-center justify-center text-[8px] md:text-[10px] font-mono font-bold text-white bg-black/40 text-center px-2">HLG CURVE</div>
                   </motion.div>
                   <div className="text-xl font-bold text-gray-500">=</div>
                   {/* Final HDR */}
@@ -253,7 +253,7 @@ const App: React.FC = () => {
                   >
                      <img src="https://picsum.photos/seed/gainmap-demo/200/300" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                      <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/30" />
-                     <div className="absolute inset-0 flex items-center justify-center text-[8px] md:text-[10px] font-mono font-bold text-blue-600">TRUE HDR</div>
+                     <div className="absolute inset-0 flex items-center justify-center text-[8px] md:text-[10px] font-mono font-bold text-blue-600">BT.2100 HLG</div>
                   </motion.div>
                </div>
             </div>
@@ -277,34 +277,34 @@ const App: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FeatureCard 
-              title="Brighter Whites" 
-              description="Whites that truly shine without washing out, just like viewing a slide projector."
+            <FeatureCard
+              title="Glowing Highlights"
+              description="SDR whites clip at 100 nits and look flat. raw2hdr's HLG output lets highlights reach 1,000+ nits — they appear to emit light on modern iPhone OLED screens."
               icon={<Zap className="w-6 h-6" />}
             />
-            <FeatureCard 
-              title="Deeper Shadows" 
-              description="Visible detail in the darkest areas instead of crushed pure black pixels."
+            <FeatureCard
+              title="Deeper Shadows"
+              description="Standard JPEGs crush shadow detail to pure black. A 16-bit RAW pipeline retains every step, so your darkest areas still hold texture and colour."
               icon={<Eye className="w-6 h-6" />}
             />
-            <FeatureCard 
-              title="Richer Colors" 
-              description="64x more color information matches what your eyes actually saw."
+            <FeatureCard
+              title="Rec.2020 Colour"
+              description="The Rec.2020 wide gamut captures nearly all visible colour. Your Fujifilm Velvia reds and deep ocean blues — that sRGB simply cannot represent — are now preserved."
               icon={<Aperture className="w-6 h-6" />}
             />
-            <FeatureCard 
-              title="Perfect for Social" 
-              description="Instagram, Threads, and iMessage now support HDR. Stop the scroll with glowing images."
+            <FeatureCard
+              title="Instagram & Threads HDR"
+              description="Instagram, Threads, and iMessage support BT.2100 HLG natively. Share your raw2hdr export and the HDR glow is preserved — no re-encoding, no quality loss."
               icon={<Share2 className="w-6 h-6" />}
             />
-            <FeatureCard 
-              title="Luminous B&W" 
-              description="Transform photos into glowing monochrome masterpieces that look like backlit prints."
+            <FeatureCard
+              title="Film Looks in HDR (Pro)"
+              description="50+ curated LUTs — Fujifilm ACROS, Velvia, Panasonic Teal Orange, classic Kodak Portra and more — combined with HDR output. You get the analogue feel and the full tonal range."
               icon={<Layers className="w-6 h-6" />}
             />
-            <FeatureCard 
-              title="Gallery Frames" 
-              description="Add elegant borders that create a reference point, making HDR content appear to emit light."
+            <FeatureCard
+              title="Frame Designs"
+              description="Film strip, EXIF card, journal with live weather and GPS, colour palette swatches — fully customisable borders that make HDR content appear to emit light on a wall."
               icon={<ImageIcon className="w-6 h-6" />}
             />
           </div>
@@ -325,9 +325,18 @@ const App: React.FC = () => {
         <div className="relative z-10">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Single RAW. Zero Loss.</h2>
           <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-            Don't let your camera's potential go to waste. Modern sensors capture 14-bit data. 
-            Stop compressing it down to 8-bit.
+            Your Fujifilm, Sony, or Canon sensor captures 12–14 bits of light data. raw2hdr
+            preserves every stop and exports true 10-bit BT.2100 HLG — directly on iPhone.
           </p>
+          <a
+            href="https://apps.apple.com/us/app/raw2hdr/id6758991441"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-blue-700 font-bold text-lg hover:bg-blue-50 transition-colors shadow-xl"
+          >
+            Download free on the App Store
+          </a>
+          <p className="text-sm opacity-60 mt-4">iOS 14+ · One-time Pro purchase · No subscription</p>
         </div>
       </section>
 
@@ -349,7 +358,7 @@ const App: React.FC = () => {
                 The Science Behind the&nbsp;Image
               </h2>
               <p className="text-gray-400 text-lg max-w-2xl leading-relaxed">
-                HDR photography isn't a filter or a style — it's a fundamentally different way of encoding light. This guide explains the technology behind every pixel, from your camera sensor to your screen.
+                HDR photography isn't a filter — it's a fundamentally different way of encoding light. This guide explains the technology raw2hdr uses: from your camera sensor to BT.2100 HLG on your iPhone screen.
               </p>
             </div>
 
@@ -360,22 +369,22 @@ const App: React.FC = () => {
                   color: 'text-emerald-400',
                   dot: 'bg-emerald-400',
                   title: 'Dynamic Range',
-                  summary: 'Your camera captures 14 stops of light. A standard screen shows only 8. HDR bridges that gap — so highlights truly glow and shadows keep their detail.',
-                  topics: ['What is a "stop" of light?', 'Why SDR clips highlights', 'How HDR displays expand the window'],
+                  summary: 'Your camera captures 12–14 stops of light. A standard screen shows only 8. raw2hdr preserves the full sensor headroom and maps it to BT.2100 HLG — so highlights truly glow.',
+                  topics: ['What is a "stop" of light?', 'Why SDR clips highlights', 'How Apple EDR renders HLG headroom'],
                 },
                 {
                   color: 'text-rose-400',
                   dot: 'bg-rose-400',
-                  title: 'Color Space',
-                  summary: 'sRGB covers just 35% of what the human eye can see. Rec.2020 — the HDR standard — reaches nearly all of it. Those missing colors are the vivid ones you remember.',
-                  topics: ['sRGB vs Display P3 vs Rec.2020', 'Why sunsets look flat in standard photos', 'Future-proofing your images'],
+                  title: 'Colour Space',
+                  summary: 'sRGB covers 35% of visible colour. raw2hdr outputs Rec.2020 — the BT.2020 wide gamut used by HDR broadcast. Those extra colours are the vivid ones your sensor actually captured.',
+                  topics: ['sRGB vs Display P3 vs Rec.2020', 'Why sunsets look flat in JPEG', 'The sRGB → XYZ → Rec.2020 colour transform'],
                 },
                 {
                   color: 'text-blue-400',
                   dot: 'bg-blue-400',
                   title: 'Bit Depth',
-                  summary: '8-bit photos use 16.7 million colors. 10-bit HDR uses over 1 billion. The difference shows up as smooth gradients in skies, skin, and shadows — no more visible banding.',
-                  topics: ['Why gradients band in standard photos', '8-bit vs 10-bit vs 16-bit precision', 'How gain maps store HDR data'],
+                  summary: '8-bit photos have 256 steps per channel (16.7 million colours). 10-bit HDR has 1,024 steps (1.07 billion). raw2hdr processes at 16-bit and exports 10-bit — zero banding.',
+                  topics: ['Why gradients band in standard photos', '8-bit vs 10-bit vs 16-bit precision', 'How HLG encodes HDR headroom above SDR white'],
                 },
               ].map((pillar, i) => (
                 <div key={i} className="px-8 md:px-10 py-8 space-y-3">
@@ -399,12 +408,12 @@ const App: React.FC = () => {
               <div className="text-xs font-mono text-gray-600 uppercase tracking-widest mb-3">Also covered in the full guide</div>
               <div className="flex flex-wrap gap-2">
                 {[
-                  'Traditional HDR photography',
-                  'Tone mapping vs true HDR',
-                  'HDR HEIC gain map format',
-                  'RAW vs in-camera HDR',
-                  'Why contrast = realism',
-                  'App features & pipeline',
+                  'Traditional tone-mapped HDR vs true HDR',
+                  'BT.2100 HLG — the HDR standard raw2hdr uses',
+                  'CIRAWFilter — Apple\'s native RAW engine',
+                  'RAW vs in-camera HDR mode',
+                  'Why a single RAW beats bracketing',
+                  'Film sims, noise reduction & lens correction',
                 ].map((tag, i) => (
                   <span key={i} className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-gray-500">
                     {tag}

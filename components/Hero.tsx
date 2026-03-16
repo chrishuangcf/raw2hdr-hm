@@ -15,26 +15,35 @@ const Hero: React.FC = () => {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
           </span>
-          New Version Available
+          v0.1.8 · Now Available on the App Store
         </div>
-        
+
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-white leading-tight">
           Transform RAW <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-white">
             into Radiance
           </span>
         </h1>
-        
+
         <p className="text-lg md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-          Unlock the 1 billion colors hiding in your camera sensor. 
-          Convert RAW files to stunning 10-bit HDR that glows on modern displays.
+          Convert your camera's RAW files to stunning 10-bit HDR HEIC directly on iPhone.
+          No desktop software. No complicated steps. Just genuine HDR on modern displays.
         </p>
-        
+
+        <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-400">
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Fujifilm</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Sony</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Canon</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Panasonic</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Leica</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Olympus</span>
+        </div>
+
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-          <a href="#download">
+          <a href="https://apps.apple.com/us/app/raw2hdr/id6758991441" target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="group">
               <Download className="mr-2 h-5 w-5 group-hover:animate-bounce" />
-              Download raw2hdr
+              Download on the App Store
             </Button>
           </a>
           <a href="#visualization">
@@ -44,6 +53,8 @@ const Hero: React.FC = () => {
             </Button>
           </a>
         </div>
+
+        <p className="text-xs text-gray-600">iOS 14.0+ · One-time purchase · No subscription</p>
       </div>
     </section>
   );
