@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Layers, Aperture, Share2, Eye, Zap, Image as ImageIcon, Sliders, ShieldCheck, FileCode, Monitor, Palette, BookOpen, ArrowRight } from 'lucide-react';
 import Hero from './components/Hero';
@@ -15,23 +16,10 @@ import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import EducationGuide from './components/EducationGuide';
 import TechnicalDeepDive from './components/TechnicalDeepDive';
+import SdrConstraintDiagram from './components/SdrConstraintDiagram';
 
-const App: React.FC = () => {
-  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
-  const [showEducationGuide, setShowEducationGuide] = useState(false);
-  const [showTechnicalDeepDive, setShowTechnicalDeepDive] = useState(false);
-
-  if (showPrivacyPolicy) {
-    return <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />;
-  }
-
-  if (showEducationGuide) {
-    return <EducationGuide onClose={() => setShowEducationGuide(false)} />;
-  }
-
-  if (showTechnicalDeepDive) {
-    return <TechnicalDeepDive onClose={() => setShowTechnicalDeepDive(false)} />;
-  }
+const HomePage: React.FC = () => {
+  const navigate = useNavigate();
 
   return (
     <div className="bg-black min-h-screen text-white selection:bg-blue-500 selection:text-white">
@@ -269,8 +257,8 @@ const App: React.FC = () => {
       <section className="max-w-7xl mx-auto px-6 py-24">
 
           {/* WHY standard photos feel flat */}
-          <div className="max-w-3xl mb-20 space-y-8">
-            <div className="space-y-4">
+          <div className="mb-20 space-y-8">
+            <div className="max-w-3xl space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-widest">
                 <Eye className="w-3 h-3" /> 06. Why SDR Falls Short
               </div>
@@ -279,41 +267,58 @@ const App: React.FC = () => {
                 The photos your camera saves as JPEG — and every image you see on most websites — are encoded in SDR: Standard Dynamic Range. SDR was designed for CRT monitors from the 1990s. It has hard technical limits baked in that make modern photos look less vivid than the moment you actually captured.
               </p>
             </div>
-            <div className="space-y-3">
-              {[
-                {
-                  label: 'Highlights clip at 100 nits',
-                  detail: 'The sky, a lamp, sunlight on water — anything brighter than 100 nits becomes a flat, featureless white patch. The gradation that makes a highlight look like light, not paper, is permanently discarded.',
-                  color: 'border-amber-500/30 bg-amber-500/5',
-                  dot: 'bg-amber-400',
-                },
-                {
-                  label: 'Shadows crush to pure black',
-                  detail: 'Dark areas get pushed to pure black. The texture, colour, and depth that your camera actually captured in the shadows is gone — not compressed, gone.',
-                  color: 'border-gray-600/40 bg-gray-800/30',
-                  dot: 'bg-gray-500',
-                },
-                {
-                  label: 'Colours squeezed into a narrow box',
-                  detail: 'sRGB covers only 35% of what the human eye can see. Those vivid Fujifilm greens and deep ocean blues your sensor captured get mapped down or clipped to fit within an arbitrary 1990s boundary.',
-                  color: 'border-rose-500/30 bg-rose-500/5',
-                  dot: 'bg-rose-400',
-                },
-                {
-                  label: 'Gradients band instead of flow',
-                  detail: '256 steps per colour channel is not enough for smooth sky gradients, skin tones, or out-of-focus backgrounds. You get visible stepping where there should be silky transitions — this is called banding.',
-                  color: 'border-purple-500/30 bg-purple-500/5',
-                  dot: 'bg-purple-400',
-                },
-              ].map((item, i) => (
-                <div key={i} className={`flex items-start gap-4 p-4 rounded-2xl border ${item.color}`}>
-                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${item.dot}`} />
-                  <div>
-                    <div className="text-sm font-bold text-white mb-1">{item.label}</div>
-                    <div className="text-sm text-gray-400 leading-relaxed">{item.detail}</div>
+
+            <div className="grid lg:grid-cols-2 gap-8 items-start">
+              <SdrConstraintDiagram />
+
+              <div className="space-y-3">
+                {[
+                  {
+                    label: 'Highlights clip at 100 nits',
+                    detail: 'The sky, a lamp, sunlight on water — anything brighter than 100 nits becomes a flat, featureless white patch. The gradation that makes a highlight look like light, not paper, is permanently discarded.',
+                    color: 'border-amber-500/30 bg-amber-500/5',
+                    dot: 'bg-amber-400',
+                  },
+                  {
+                    label: 'Shadows crush to pure black',
+                    detail: 'Dark areas get pushed to pure black. The texture, colour, and depth that your camera actually captured in the shadows is gone — not compressed, gone.',
+                    color: 'border-gray-600/40 bg-gray-800/30',
+                    dot: 'bg-gray-500',
+                  },
+                  {
+                    label: 'Colours squeezed into a narrow box',
+                    detail: 'sRGB covers only 35% of what the human eye can see. Those vivid Fujifilm greens and deep ocean blues your sensor captured get mapped down or clipped to fit within an arbitrary 1990s boundary.',
+                    color: 'border-rose-500/30 bg-rose-500/5',
+                    dot: 'bg-rose-400',
+                  },
+                  {
+                    label: 'Gradients band instead of flow',
+                    detail: '256 steps per colour channel is not enough for smooth sky gradients, skin tones, or out-of-focus backgrounds. You get visible stepping where there should be silky transitions — this is called banding.',
+                    color: 'border-purple-500/30 bg-purple-500/5',
+                    dot: 'bg-purple-400',
+                  },
+                  {
+                    label: 'No HDR metadata — OS defaults to SDR',
+                    detail: 'JPEG, PNG, and even 16-bit TIFF carry no HLG or BT.2100 colour space tag. The OS has no signal to unlock HDR rendering, so every image is treated as SDR regardless of how much dynamic range the original sensor captured.',
+                    color: 'border-cyan-500/30 bg-cyan-500/5',
+                    dot: 'bg-cyan-400',
+                  },
+                  {
+                    label: 'Locked out of HDR social sharing',
+                    detail: 'Instagram, Threads, and iMessage detect the BT.2100 HLG colour space tag to preserve HDR on compatible screens. Without it — as with any JPEG or PNG — the platform treats the image as SDR and the glow is gone permanently.',
+                    color: 'border-teal-500/30 bg-teal-500/5',
+                    dot: 'bg-teal-400',
+                  },
+                ].map((item, i) => (
+                  <div key={i} className={`flex items-start gap-4 p-4 rounded-2xl border ${item.color}`}>
+                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${item.dot}`} />
+                    <div>
+                      <div className="text-sm font-bold text-white mb-1">{item.label}</div>
+                      <div className="text-sm text-gray-400 leading-relaxed">{item.detail}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
@@ -500,29 +505,38 @@ const App: React.FC = () => {
                 Written for both photographers and developers. Every section includes plain-English explanations and optional technical deep-dives.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
-                <button
-                  onClick={() => setShowEducationGuide(true)}
+                <Link
+                  to="/education-guide"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
                 >
                   Read the Full Guide
                   <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setShowTechnicalDeepDive(true)}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-300 font-semibold text-sm transition-colors"
+                </Link>
+                <Link
+                  to="/technical-deep-dive"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)]"
                 >
                   Technical Deep Dive
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      <Footer onPrivacyPolicyClick={() => setShowPrivacyPolicy(true)} />
+      <Footer onPrivacyPolicyClick={() => navigate('/privacy-policy')} />
     </div>
   );
 };
+
+const App: React.FC = () => (
+  <Routes>
+    <Route path="/" element={<HomePage />} />
+    <Route path="/education-guide" element={<EducationGuide onClose={() => null} />} />
+    <Route path="/technical-deep-dive" element={<TechnicalDeepDive onClose={() => null} />} />
+    <Route path="/privacy-policy" element={<PrivacyPolicy onClose={() => null} />} />
+  </Routes>
+);
 
 export default App;

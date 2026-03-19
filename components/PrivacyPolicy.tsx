@@ -1,23 +1,23 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
-const PrivacyPolicy: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
+const PrivacyPolicy: React.FC<{ onClose?: () => void }> = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-950 text-gray-300">
-      {/* Header with close button */}
-      {onClose && (
-        <div className="sticky top-0 bg-gray-950 border-b border-gray-900 z-10">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <button
-              onClick={onClose}
-              className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Back
-            </button>
-          </div>
+      {/* Header with back button */}
+      <div className="sticky top-0 bg-gray-950 border-b border-gray-900 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Main content */}
       <div className="max-w-4xl mx-auto px-4 py-12">

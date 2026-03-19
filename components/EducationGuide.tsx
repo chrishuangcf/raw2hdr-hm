@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, BookOpen, Monitor, Layers, Sliders, Palette, Zap, Eye, Camera, FileImage, Cpu, Settings } from 'lucide-react';
 
 interface SectionProps {
@@ -76,7 +77,8 @@ const CompareRow: React.FC<{ label: string; sdr: string; hdr: string }> = ({ lab
   </div>
 );
 
-const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
+const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
+  const navigate = useNavigate();
   const tocItems = [
     { id: 'what-is-hdr', label: 'Understanding HDR' },
     { id: 'dynamic-range', label: 'Dynamic Range' },
@@ -96,15 +98,13 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
       {/* Sticky header */}
       <div className="sticky top-0 bg-gray-950/95 backdrop-blur border-b border-gray-900 z-20">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </button>
-          )}
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
           <div className="flex items-center gap-2 text-gray-400 text-sm">
             <BookOpen className="w-4 h-4" />
             <span className="hidden sm:inline">HDR Photography Education Guide</span>
