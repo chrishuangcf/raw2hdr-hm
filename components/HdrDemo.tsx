@@ -54,7 +54,7 @@ const HdrDemo: React.FC = () => {
   const isHdr = mode === ComparisonMode.HDR;
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800 p-6 md:p-8 my-12 shadow-2xl relative z-10">
+    <div className="w-full bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800 p-6 md:p-8 shadow-2xl relative z-10">
 
       <div className="flex justify-center space-x-4 mb-8 relative z-50">
         <button

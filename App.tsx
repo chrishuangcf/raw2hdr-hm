@@ -14,10 +14,12 @@ import AppScreenshots from './components/AppScreenshots';
 import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import EducationGuide from './components/EducationGuide';
+import TechnicalDeepDive from './components/TechnicalDeepDive';
 
 const App: React.FC = () => {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showEducationGuide, setShowEducationGuide] = useState(false);
+  const [showTechnicalDeepDive, setShowTechnicalDeepDive] = useState(false);
 
   if (showPrivacyPolicy) {
     return <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />;
@@ -27,55 +29,54 @@ const App: React.FC = () => {
     return <EducationGuide onClose={() => setShowEducationGuide(false)} />;
   }
 
+  if (showTechnicalDeepDive) {
+    return <TechnicalDeepDive onClose={() => setShowTechnicalDeepDive(false)} />;
+  }
+
   return (
     <div className="bg-black min-h-screen text-white selection:bg-blue-500 selection:text-white">
       {/* Original Hero Section */}
       <Hero />
       
       {/* Original HDR Demo & Stats */}
-      <section id="visualization" className="px-4 -mt-12 relative z-20 scroll-mt-24 pb-20">
-         <div className="max-w-6xl mx-auto flex flex-col items-center gap-12">
-            {/* Nits Slider */}
+      <section id="visualization" className="px-6 -mt-12 relative z-20 scroll-mt-24 pb-24">
+         <div className="max-w-7xl mx-auto flex flex-col items-center gap-12">
             <HdrSlider />
-            
          </div>
       </section>
 
       {/* NEW EDUCATION SECTIONS START HERE */}
 
       {/* 2. The 3D Histogram - Dynamic Range Visualization */}
-      <section className="max-w-7xl mx-auto px-6 py-24 space-y-16">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="space-y-6"
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono uppercase tracking-widest">
-              <Monitor className="w-3 h-3" /> 01. Dynamic Range
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Visualizing <span className="italic text-emerald-400">Headroom</span></h2>
-            <p className="text-gray-400 text-lg leading-relaxed">
-              These particles represent the distribution of light in an image. In SDR, the "cloud" is squashed—anything brighter than 100 nits is lost. In HDR, the cloud expands vertically, preserving the intense highlights of the real world.
-            </p>
-            <div className="space-y-4">
-               <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="w-2 h-2 rounded-full bg-white" />
-                  <div className="text-sm text-gray-400"><span className="text-white font-bold">SDR:</span> Clipped at 100 nits. Highlights look like flat white patches.</div>
-               </div>
-               <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="w-2 h-2 rounded-full bg-blue-400" />
-                  <div className="text-sm text-gray-400"><span className="text-blue-400 font-bold">HDR:</span> Reaches 1000+ nits. Highlights glow with color and detail.</div>
-               </div>
-            </div>
-          </motion.div>
-          <div className="grid grid-cols-1 gap-4">
-            <ThreeHistogram mode="SDR" />
-            <ThreeHistogram mode="HDR" />
+      <section className="max-w-7xl mx-auto px-6 py-24 space-y-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-3xl space-y-6"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono uppercase tracking-widest">
+            <Monitor className="w-3 h-3" /> 01. Dynamic Range
           </div>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Visualizing <span className="italic text-emerald-400">Headroom</span></h2>
+          <p className="text-gray-400 text-lg leading-relaxed">
+            These particles represent the distribution of light in an image. In SDR, the "cloud" is squashed — anything brighter than 100 nits is lost. In HDR, the cloud expands vertically, preserving the intense highlights of the real world.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 flex-1">
+              <div className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
+              <div className="text-sm text-gray-400"><span className="text-white font-bold">SDR:</span> Clipped at 100 nits. Highlights look like flat white patches.</div>
+            </div>
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 flex-1">
+              <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
+              <div className="text-sm text-gray-400"><span className="text-blue-400 font-bold">HDR:</span> Reaches 1000+ nits. Highlights glow with color and detail.</div>
+            </div>
+          </div>
+        </motion.div>
+        <div className="grid sm:grid-cols-2 gap-6">
+          <ThreeHistogram mode="SDR" />
+          <ThreeHistogram mode="HDR" />
         </div>
-        <HdrDemo />
       </section>
 
       {/* 3. Bit Depth */}
@@ -120,55 +121,52 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. True vs. Traditional HDR */}
+      {/* Experience the HDR difference */}
       <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="max-w-3xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             className="space-y-6"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-mono uppercase tracking-widest">
               <Zap className="w-3 h-3" /> 03. True vs. Traditional
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Contrast is <span className="italic text-orange-400">Reality</span></h2>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Experience the <span className="italic text-orange-400">HDR Difference</span></h2>
             <p className="text-gray-400 text-lg leading-relaxed">
               Traditional HDR (Tone Mapping) compresses brightness to fit SDR limits, often looking "flat" or "fake". True HDR allows shadows to stay dark and highlights to truly glow. This stronger contrast reflects real-world lighting more accurately.
             </p>
-            <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 group">
-               {/* Base Image (Traditional/Flat) */}
-               <img 
-                 src="https://picsum.photos/seed/hdr-comp/800/450?blur=2" 
-                 alt="Traditional HDR" 
-                 className="w-full h-full object-cover grayscale opacity-50"
-                 referrerPolicy="no-referrer"
-               />
-               {/* Overlay Image (True HDR/Vibrant) */}
-               <motion.div 
-                 className="absolute inset-0 overflow-hidden border-l-2 border-orange-400"
-                 initial={{ width: "50%" }}
-                 whileInView={{ width: ["50%", "100%", "50%"] }}
-                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-               >
-                  <img 
-                    src="https://picsum.photos/seed/hdr-comp/800/450" 
-                    alt="True HDR" 
-                    className="absolute inset-0 w-[800px] h-full object-cover max-w-none"
-                    referrerPolicy="no-referrer"
-                  />
-               </motion.div>
-               <div className="absolute bottom-4 left-4 px-2 py-1 bg-black/60 rounded text-[8px] font-mono text-white">TRADITIONAL (FLAT)</div>
-               <div className="absolute bottom-4 right-4 px-2 py-1 bg-orange-500/80 rounded text-[8px] font-mono text-white">TRUE HDR (VIBRANT)</div>
+            <div className="space-y-3">
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Traditional HDR (Tone Mapped)</div>
+                <p className="text-sm text-gray-400">Shadows are lifted. Highlights are pulled down. Everything looks evenly exposed — often appearing flat or artificially "painted."</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-orange-500/5 border border-orange-500/20 space-y-2">
+                <div className="text-xs font-mono text-orange-400 uppercase tracking-widest">True HDR (Display HDR)</div>
+                <p className="text-sm text-gray-300">Shadows remain genuinely dark. Highlights truly glow above SDR white. High contrast is preserved — looks like a window, not a photo.</p>
+              </div>
             </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <HdrDemo />
           </motion.div>
         </div>
       </section>
 
       {/* 5. Color Spaces */}
       <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-6">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="space-y-6"
+          >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-mono uppercase tracking-widest">
               <Palette className="w-3 h-3" /> 04. Color Spaces
             </div>
@@ -176,29 +174,35 @@ const App: React.FC = () => {
             <p className="text-gray-400 text-lg leading-relaxed">
               Colour spaces define the palette an image can contain. raw2hdr transforms your RAW's colour data all the way to <strong className="text-white">Rec.2020</strong> (BT.2020) — the wide-gamut standard used in HDR broadcast. Those are the vivid reds, neon blues, and saturated greens your sensor captured but JPEG discards.
             </p>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-3">
               {[
                 { name: 'sRGB', desc: 'Covers ~35% of visible colour. The standard for JPEG and the web — vivid colours are mapped down or clipped.', color: 'bg-red-500' },
                 { name: 'Display P3', desc: 'iPhone native display gamut. ~25% wider than sRGB. Richer reds and greens on Apple screens.', color: 'bg-emerald-500' },
                 { name: 'Rec.2020 (BT.2020)', desc: "raw2hdr's output colour space. ~75% of visible colour. Paired with BT.2100 HLG for true HDR on Apple devices.", color: 'bg-blue-500' },
               ].map((space, i) => (
-                <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className={`w-3 h-3 rounded-full ${space.color}`} />
+                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                  <div className={`w-3 h-3 rounded-full flex-shrink-0 ${space.color}`} />
                   <div>
                     <div className="text-sm font-bold text-white">{space.name}</div>
-                    <div className="text-xs text-gray-500">{space.desc}</div>
+                    <div className="text-xs text-gray-500 leading-relaxed">{space.desc}</div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-          <GamutGraph />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <GamutGraph />
+          </motion.div>
         </div>
       </section>
 
       {/* 6. Gain Map Architecture */}
       <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="bg-zinc-900 rounded-3xl p-8 md:p-16 border border-white/5 relative overflow-hidden">
+        <div className="bg-zinc-900/50 rounded-3xl p-8 md:p-16 border border-white/5 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500/5 to-transparent" />
           <div className="grid lg:grid-cols-2 gap-12 relative z-10 items-center">
             <div className="space-y-6">
@@ -261,18 +265,64 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. Why SDR Falls Short */}
-      <section className="py-24 px-4 bg-gray-950">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-widest">
-              <Eye className="w-3 h-3" /> 06. Why SDR Falls Short
+      {/* 6. Why HDR photos are better */}
+      <section className="max-w-7xl mx-auto px-6 py-24">
+
+          {/* WHY standard photos feel flat */}
+          <div className="max-w-3xl mb-20 space-y-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-widest">
+                <Eye className="w-3 h-3" /> 06. Why SDR Falls Short
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Why standard photos feel flat</h2>
+              <p className="text-gray-400 text-lg leading-relaxed">
+                The photos your camera saves as JPEG — and every image you see on most websites — are encoded in SDR: Standard Dynamic Range. SDR was designed for CRT monitors from the 1990s. It has hard technical limits baked in that make modern photos look less vivid than the moment you actually captured.
+              </p>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Why Standard Photos Feel Flat</h2>
+            <div className="space-y-3">
+              {[
+                {
+                  label: 'Highlights clip at 100 nits',
+                  detail: 'The sky, a lamp, sunlight on water — anything brighter than 100 nits becomes a flat, featureless white patch. The gradation that makes a highlight look like light, not paper, is permanently discarded.',
+                  color: 'border-amber-500/30 bg-amber-500/5',
+                  dot: 'bg-amber-400',
+                },
+                {
+                  label: 'Shadows crush to pure black',
+                  detail: 'Dark areas get pushed to pure black. The texture, colour, and depth that your camera actually captured in the shadows is gone — not compressed, gone.',
+                  color: 'border-gray-600/40 bg-gray-800/30',
+                  dot: 'bg-gray-500',
+                },
+                {
+                  label: 'Colours squeezed into a narrow box',
+                  detail: 'sRGB covers only 35% of what the human eye can see. Those vivid Fujifilm greens and deep ocean blues your sensor captured get mapped down or clipped to fit within an arbitrary 1990s boundary.',
+                  color: 'border-rose-500/30 bg-rose-500/5',
+                  dot: 'bg-rose-400',
+                },
+                {
+                  label: 'Gradients band instead of flow',
+                  detail: '256 steps per colour channel is not enough for smooth sky gradients, skin tones, or out-of-focus backgrounds. You get visible stepping where there should be silky transitions — this is called banding.',
+                  color: 'border-purple-500/30 bg-purple-500/5',
+                  dot: 'bg-purple-400',
+                },
+              ].map((item, i) => (
+                <div key={i} className={`flex items-start gap-4 p-4 rounded-2xl border ${item.color}`}>
+                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${item.dot}`} />
+                  <div>
+                    <div className="text-sm font-bold text-white mb-1">{item.label}</div>
+                    <div className="text-sm text-gray-400 leading-relaxed">{item.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Why HDR is better */}
+          <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Why HDR photos are better</h2>
             <p className="text-gray-400 text-lg leading-relaxed">
-              Standard SDR photos are limited to just 16 million colors.
-              <span className="text-white font-semibold"> 10-bit HDR unlocks over 1 billion colors</span>,
-              bringing back the depth, luminance, and presence of the moment you captured.
+              10-bit HDR removes each of those limits.{' '}
+              <span className="text-white font-semibold">Over 1 billion colours</span>, real luminance that genuinely glows, and shadows that hold their depth — bringing back the full presence of the moment you captured.
             </p>
           </div>
 
@@ -308,7 +358,7 @@ const App: React.FC = () => {
               icon={<ImageIcon className="w-6 h-6" />}
             />
           </div>
-        </div>
+
       </section>
 
       {/* 8. Professional Tools */}
@@ -320,10 +370,11 @@ const App: React.FC = () => {
       <AppScreenshots />
 
       {/* CTA Strip */}
-      <section className="py-20 bg-blue-600 text-white text-center px-4 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="relative z-10">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Single RAW. Zero Loss.</h2>
+      <section className="py-20 bg-blue-600 text-white text-center px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 opacity-80" />
+        <div className="absolute inset-0 [background-image:radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.08)_0%,transparent_60%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
+        <div className="relative z-10 max-w-3xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">Single RAW. Zero Loss.</h2>
           <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
             Your Fujifilm, Sony, or Canon sensor captures 12–14 bits of light data. raw2hdr
             preserves every stop and exports true 10-bit BT.2100 HLG — directly on iPhone.
@@ -341,8 +392,8 @@ const App: React.FC = () => {
       </section>
 
       {/* HDR Education Guide Summary */}
-      <section className="py-24 px-4 bg-black">
-        <div className="max-w-5xl mx-auto">
+      <section className="py-24 px-6 bg-black">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -354,7 +405,7 @@ const App: React.FC = () => {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono uppercase tracking-widest mb-6">
                 <BookOpen className="w-3 h-3" /> Education Guide
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 leading-tight">
                 The Science Behind the&nbsp;Image
               </h2>
               <p className="text-gray-400 text-lg max-w-2xl leading-relaxed">
@@ -427,13 +478,22 @@ const App: React.FC = () => {
               <p className="text-gray-500 text-sm max-w-sm">
                 Written for both photographers and developers. Every section includes plain-English explanations and optional technical deep-dives.
               </p>
-              <button
-                onClick={() => setShowEducationGuide(true)}
-                className="flex-shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
-              >
-                Read the Full Guide
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+                <button
+                  onClick={() => setShowEducationGuide(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
+                >
+                  Read the Full Guide
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setShowTechnicalDeepDive(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-300 font-semibold text-sm transition-colors"
+                >
+                  Technical Deep Dive
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
