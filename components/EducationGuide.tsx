@@ -531,7 +531,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                       ['Camera sensor', 'Captures light as raw electrical measurements (12–14 bit Bayer/X-Trans mosaic)'],
                       ['RAW file', 'Stores unprocessed sensor data — .RAF, .CR2/.CR3, .ARW, .RW2, .ORF, .DNG'],
                       ['CIRAWFilter', 'Apple\'s native RAW decoder: demosaicing + camera-specific colour profile applied'],
-                      ['16-bit linear working space', 'sRGB → linear RGB → XYZ → Rec.2020 colour transform'],
+                      ['16-bit linear working space', 'Linear sRGB (from RAW decode) → XYZ (D65) → Rec.2020 linear RGB colour transform'],
                       ['HLG transfer function', 'BT.2100 HLG curve maps linear scene values including HDR highlights above 1.0'],
                       ['HEIC export', '10-bit HEVC-encoded HEIC with kCGColorSpaceITUR_2100_HLG colour space'],
                     ].map(([step, desc], i) => (
@@ -553,7 +553,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                     <li><span className="text-gray-300">RAW decode via CIRAWFilter:</span> Apple's native <code>CIRAWFilter</code> API decodes the Bayer/X-Trans mosaic, applies the camera's embedded colour profile, and outputs a 16-bit linear CIImage. Supports RAF, CR2/CR3, ARW, RW2, ORF, DNG.</li>
                     <li><span className="text-gray-300">Editor adjustments:</span> Exposure (±3 EV), contrast, highlights, shadows, black point, white balance, saturation, and vibrance are applied in linear light. Noise reduction (luminance &amp; chroma NR via <code>CIRAWFilter</code>) is applied at this stage.</li>
                     <li><span className="text-gray-300">LUT application (optional, Pro):</span> 33-grid 3D cube LUTs (.cube) are applied in the appropriate input colour space (sRGB, F-Log2, V-Log, L-Log, or linear), then converted to Rec.2020 linear for consistency.</li>
-                    <li><span className="text-gray-300">Colour transform to Rec.2020:</span> sRGB → linear sRGB → XYZ (D65) → Rec.2020 linear RGB. Preserves the wide-gamut colour information captured by the sensor.</li>
+                    <li><span className="text-gray-300">Colour transform to Rec.2020:</span> Linear sRGB (CIRAWFilter output) → XYZ (D65) → Rec.2020 linear RGB. CIRAWFilter already outputs linear light — there is no gamma-encoded sRGB step. This preserves the wide-gamut colour information captured by the sensor.</li>
                     <li><span className="text-gray-300">HLG transfer function:</span> BT.2100 HLG curve is applied. Scene-linear values above 1.0 (the highlights beyond SDR white) are preserved in the logarithmic segment of the HLG curve — this is where the HDR headroom lives.</li>
                     <li><span className="text-gray-300">HEIC encoding:</span> <code>CGImageDestination</code> encodes the result as a 10-bit HEVC image with <code>kCGColorSpaceITUR_2100_HLG</code> as the embedded colour space profile. Full EXIF metadata is preserved.</li>
                   </ol>
@@ -661,12 +661,11 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   <ul className="list-disc list-inside space-y-2 mt-2 text-gray-400">
                     <li><span className="text-gray-300">RAW decode engine:</span> Apple <code>CIRAWFilter</code> — native iOS RAW decoder. Handles demosaicing, camera colour profiles, and white balance. Supports .RAF, .CR2/.CR3, .ARW, .RW2, .ORF, .DNG.</li>
                     <li><span className="text-gray-300">Processing precision:</span> 16-bit CIImage pipeline throughout. All tone adjustments (exposure, contrast, shadows, highlights, black point) operate in linear light before the colour transform.</li>
-                    <li><span className="text-gray-300">Colour transform:</span> sRGB → linear sRGB → XYZ (D65) → Rec.2020 linear RGB. Ensures the wide-gamut BT.2020 primaries are used in the HDR output.</li>
+                    <li><span className="text-gray-300">Colour transform:</span> Linear sRGB (CIRAWFilter output) → XYZ (D65) → Rec.2020 linear RGB. CIRAWFilter decodes the RAW directly to linear light — the transform starts from linear sRGB, not gamma-encoded sRGB. Ensures wide-gamut BT.2020 primaries in the HDR output.</li>
                     <li><span className="text-gray-300">HLG encoding:</span> BT.2100 HLG transfer function applied to Rec.2020 linear values. Output written via <code>CGImageDestination</code> with <code>kCGColorSpaceITUR_2100_HLG</code>. Encoded as 10-bit HEVC (Main 10 profile).</li>
                     <li><span className="text-gray-300">LUT support:</span> 33-grid 3D cube (.cube) files. Multiple input gamma profiles supported: F-Log2, V-Log, L-Log, Mi-Log, sRGB. Real-time preview with cached linear RGB handles.</li>
                     <li><span className="text-gray-300">Noise reduction:</span> Luminance and chrominance NR via <code>CIRAWFilter</code> NR parameters. ISO metadata read from EXIF to auto-suggest strength. Loupe shows edge-detected preview for precise tuning.</li>
                     <li><span className="text-gray-300">Lens correction:</span> Lensfun database for per-lens distortion (A/B/C polynomial) and vignetting (K1/K2/K3) correction. Manual override available for unlisted lenses.</li>
-                    <li><span className="text-gray-300">State management:</span> Flutter + Riverpod. Native iOS processing via Objective-C++ FFI bridge (<code>native_bridge.mm</code>) to CoreImage/CoreGraphics APIs.</li>
                   </ul>
                 </>
               }

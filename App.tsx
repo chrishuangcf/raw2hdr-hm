@@ -454,22 +454,43 @@ const App: React.FC = () => {
               ))}
             </div>
 
-            {/* Also covered */}
-            <div className="px-8 md:px-14 py-6 border-t border-white/5 bg-white/[0.02]">
-              <div className="text-xs font-mono text-gray-600 uppercase tracking-widest mb-3">Also covered in the full guide</div>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'Traditional tone-mapped HDR vs true HDR',
-                  'BT.2100 HLG — the HDR standard raw2hdr uses',
-                  'CIRAWFilter — Apple\'s native RAW engine',
-                  'RAW vs in-camera HDR mode',
-                  'Why a single RAW beats bracketing',
-                  'Film sims, noise reduction & lens correction',
-                ].map((tag, i) => (
-                  <span key={i} className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-gray-500">
-                    {tag}
-                  </span>
-                ))}
+            {/* Also covered — two columns */}
+            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5">
+              <div className="px-8 md:px-14 py-6 bg-white/[0.02]">
+                <div className="text-xs font-mono text-gray-600 uppercase tracking-widest mb-3">Also covered in the full guide</div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    'Traditional tone-mapped HDR vs true HDR',
+                    'BT.2100 HLG — the HDR standard raw2hdr uses',
+                    'CIRAWFilter — Apple\'s native RAW engine',
+                    'RAW vs in-camera HDR mode',
+                    'Why a single RAW beats bracketing',
+                    'Film sims, noise reduction & lens correction',
+                  ].map((tag, i) => (
+                    <span key={i} className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-gray-500">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="px-8 md:px-14 py-6 bg-white/[0.02]">
+                <div className="text-xs font-mono text-gray-600 uppercase tracking-widest mb-3">Also covered in the technical deep dive</div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    'CIRAWFilter — full decode pipeline internals',
+                    'Synthetic log encoding from linear RAW',
+                    'LUT cache — 9× render speedup',
+                    'HLG headroom extension algorithm',
+                    'HDR compositing in native float context',
+                    'Exposure metering formula & EV curve',
+                    'Lens correction in linear light',
+                    'Cross-manufacturer LUT compatibility',
+                  ].map((tag, i) => (
+                    <span key={i} className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-gray-500">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 

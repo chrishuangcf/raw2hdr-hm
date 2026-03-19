@@ -345,11 +345,11 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                 ['Demosaic + White Balance', 'CIRAWFilter — linear sRGB (16-bit half-float)', 'border-violet-500'],
                 ['Lens Correction', 'Distortion warp + vignetting in linear light', 'border-indigo-500'],
                 ['Exposure Scaling', 'EV from center-weighted software metering', 'border-blue-500'],
-                ['Gamut Convert + Log Encode', 'sRGB to manufacturer gamut + log OETF', 'border-cyan-500'],
+                ['Gamut Convert + Log Encode', 'Linear sRGB → manufacturer gamut (linear) + log OETF', 'border-cyan-500'],
                 ['3D LUT Lookup', 'Trilinear interpolation across 33-grid cube', 'border-teal-500'],
                 ['Post-LUT Calibration', 'Range normalization + per-channel gain correction', 'border-emerald-500'],
                 ['Linearize + Highlight Extension', 'Scene-linear data above SDR white soft-log extended', 'border-lime-500'],
-                ['Rec.2020 + HLG Encode', 'sRGB to Rec.2020 to BT.2100 HLG transfer function', 'border-yellow-500'],
+                ['Rec.2020 + HLG Encode', 'Linear sRGB → XYZ (D65) → Rec.2020 → BT.2100 HLG OETF', 'border-yellow-500'],
                 ['Creative FX + Compositing', 'Applied to HLG buffer in native float context', 'border-orange-500'],
                 ['HEIC Encode', '10-bit HEVC + BT.2100 HLG colour space embedded', 'border-red-500'],
               ].map(([step, desc, accent], i, arr) => (
