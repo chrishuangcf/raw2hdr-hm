@@ -253,84 +253,77 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. Why HDR photos are better */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
+      {/* 6. Why SDR falls short — and what HDR unlocks */}
+      <section className="max-w-7xl mx-auto px-6 py-24 space-y-12">
 
-          {/* WHY standard photos feel flat */}
-          <div className="mb-20 space-y-8">
-            <div className="max-w-3xl space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-widest">
-                <Eye className="w-3 h-3" /> 06. Why SDR Falls Short
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Why standard photos feel flat</h2>
-              <p className="text-gray-400 text-lg leading-relaxed">
-                The photos your camera saves as JPEG — and every image you see on most websites — are encoded in SDR: Standard Dynamic Range. SDR was designed for CRT monitors from the 1990s. It has hard technical limits baked in that make modern photos look less vivid than the moment you actually captured.
-              </p>
-            </div>
+        <div className="max-w-3xl space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-widest">
+            <Eye className="w-3 h-3" /> 06. SDR vs HDR
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Why standard photos feel flat — and what HDR unlocks</h2>
+          <p className="text-gray-400 text-lg leading-relaxed">
+            JPEG was designed for CRT monitors from the 1990s. It has hard technical limits baked in that make modern photos look less vivid than the moment you actually captured. 10-bit HDR removes every one of those limits.
+          </p>
+        </div>
 
-            <div className="grid lg:grid-cols-2 gap-8 items-start">
-              <SdrConstraintDiagram />
+        {/* Full-width OS decision diagram */}
+        <SdrConstraintDiagram />
 
-              <div className="space-y-3">
-                {[
-                  {
-                    label: 'Highlights clip at 100 nits',
-                    detail: 'The sky, a lamp, sunlight on water — anything brighter than 100 nits becomes a flat, featureless white patch. The gradation that makes a highlight look like light, not paper, is permanently discarded.',
-                    color: 'border-amber-500/30 bg-amber-500/5',
-                    dot: 'bg-amber-400',
-                  },
-                  {
-                    label: 'Shadows crush to pure black',
-                    detail: 'Dark areas get pushed to pure black. The texture, colour, and depth that your camera actually captured in the shadows is gone — not compressed, gone.',
-                    color: 'border-gray-600/40 bg-gray-800/30',
-                    dot: 'bg-gray-500',
-                  },
-                  {
-                    label: 'Colours squeezed into a narrow box',
-                    detail: 'sRGB covers only 35% of what the human eye can see. Those vivid Fujifilm greens and deep ocean blues your sensor captured get mapped down or clipped to fit within an arbitrary 1990s boundary.',
-                    color: 'border-rose-500/30 bg-rose-500/5',
-                    dot: 'bg-rose-400',
-                  },
-                  {
-                    label: 'Gradients band instead of flow',
-                    detail: '256 steps per colour channel is not enough for smooth sky gradients, skin tones, or out-of-focus backgrounds. You get visible stepping where there should be silky transitions — this is called banding.',
-                    color: 'border-purple-500/30 bg-purple-500/5',
-                    dot: 'bg-purple-400',
-                  },
-                  {
-                    label: 'No HDR metadata — OS defaults to SDR',
-                    detail: 'JPEG, PNG, and even 16-bit TIFF carry no HLG or BT.2100 colour space tag. The OS has no signal to unlock HDR rendering, so every image is treated as SDR regardless of how much dynamic range the original sensor captured.',
-                    color: 'border-cyan-500/30 bg-cyan-500/5',
-                    dot: 'bg-cyan-400',
-                  },
-                  {
-                    label: 'Locked out of HDR social sharing',
-                    detail: 'Instagram, Threads, and iMessage detect the BT.2100 HLG colour space tag to preserve HDR on compatible screens. Without it — as with any JPEG or PNG — the platform treats the image as SDR and the glow is gone permanently.',
-                    color: 'border-teal-500/30 bg-teal-500/5',
-                    dot: 'bg-teal-400',
-                  },
-                ].map((item, i) => (
-                  <div key={i} className={`flex items-start gap-4 p-4 rounded-2xl border ${item.color}`}>
-                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${item.dot}`} />
-                    <div>
-                      <div className="text-sm font-bold text-white mb-1">{item.label}</div>
-                      <div className="text-sm text-gray-400 leading-relaxed">{item.detail}</div>
-                    </div>
-                  </div>
-                ))}
+        {/* SDR problem cards — responsive grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            {
+              label: 'Highlights clip at 100 nits',
+              detail: 'The sky, a lamp, sunlight on water — anything brighter than 100 nits becomes a flat, featureless white patch. The gradation that makes a highlight look like light, not paper, is permanently discarded.',
+              color: 'border-amber-500/30 bg-amber-500/5',
+              dot: 'bg-amber-400',
+            },
+            {
+              label: 'Shadows crush to pure black',
+              detail: 'Dark areas get pushed to pure black. The texture, colour, and depth that your camera actually captured in the shadows is gone — not compressed, gone.',
+              color: 'border-gray-600/40 bg-gray-800/30',
+              dot: 'bg-gray-500',
+            },
+            {
+              label: 'Colours squeezed into a narrow box',
+              detail: 'sRGB covers only 35% of what the human eye can see. Those vivid Fujifilm greens and deep ocean blues your sensor captured get mapped down or clipped to fit within an arbitrary 1990s boundary.',
+              color: 'border-rose-500/30 bg-rose-500/5',
+              dot: 'bg-rose-400',
+            },
+            {
+              label: 'Gradients band instead of flow',
+              detail: '256 steps per colour channel is not enough for smooth sky gradients, skin tones, or out-of-focus backgrounds. You get visible stepping where there should be silky transitions — this is called banding.',
+              color: 'border-purple-500/30 bg-purple-500/5',
+              dot: 'bg-purple-400',
+            },
+            {
+              label: 'No HDR metadata — OS defaults to SDR',
+              detail: 'JPEG, PNG, and even 16-bit TIFF carry no HLG or BT.2100 colour space tag. The OS has no signal to unlock HDR rendering, so every image is treated as SDR regardless of how much dynamic range the original sensor captured.',
+              color: 'border-cyan-500/30 bg-cyan-500/5',
+              dot: 'bg-cyan-400',
+            },
+            {
+              label: 'Locked out of HDR social sharing',
+              detail: 'Instagram, Threads, and iMessage detect the BT.2100 HLG colour space tag to preserve HDR on compatible screens. Without it — as with any JPEG or PNG — the platform treats the image as SDR and the glow is gone permanently.',
+              color: 'border-teal-500/30 bg-teal-500/5',
+              dot: 'bg-teal-400',
+            },
+          ].map((item, i) => (
+            <div key={i} className={`flex items-start gap-4 p-5 rounded-2xl border ${item.color}`}>
+              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${item.dot}`} />
+              <div>
+                <div className="text-sm font-bold text-white mb-1">{item.label}</div>
+                <div className="text-sm text-gray-400 leading-relaxed">{item.detail}</div>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
 
-          {/* Why HDR is better */}
-          <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Why HDR photos are better</h2>
-            <p className="text-gray-400 text-lg leading-relaxed">
-              10-bit HDR removes each of those limits.{' '}
-              <span className="text-white font-semibold">Over 1 billion colours</span>, real luminance that genuinely glows, and shadows that hold their depth — bringing back the full presence of the moment you captured.
-            </p>
-          </div>
-
+        {/* HDR benefit cards */}
+        <div className="pt-4 border-t border-white/5 space-y-8">
+          <p className="text-gray-400 text-lg leading-relaxed max-w-3xl">
+            <span className="text-white font-semibold">Over 1 billion colours</span>, real luminance that genuinely glows, and shadows that hold their depth — 10-bit HDR brings back the full presence of the moment you captured.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FeatureCard
               title="Glowing Highlights"
@@ -363,6 +356,7 @@ const HomePage: React.FC = () => {
               icon={<ImageIcon className="w-6 h-6" />}
             />
           </div>
+        </div>
 
       </section>
 
@@ -482,16 +476,16 @@ const HomePage: React.FC = () => {
                 <div className="text-xs font-mono text-gray-600 uppercase tracking-widest mb-3">Also covered in the technical deep dive</div>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    "Why LibRaw & open-source RAW tools fall short on iOS",
-                    "CIRAWFilter — what Apple's native decode handles automatically",
-                    "Why there is no Android version yet",
+                    "RAW demosaic & CIRAWFilter — Apple's native decode",
+                    "Lens correction in linear light",
                     "Synthetic log encoding from linear RAW",
+                    "Three ways apps apply LUTs — and why Path 1 is wrong",
                     "LUT cache — 9× render speedup",
+                    "Why 16-bit TIFF, PSD & DNG don't unlock HDR",
+                    "Gain map vs raw-native HDR encoding",
                     "HLG headroom extension algorithm",
                     "HDR compositing in native float context",
-                    "Lens correction in linear light",
                     "Cross-manufacturer LUT compatibility",
-                    "Why 16-bit TIFF, PSD & DNG don't unlock HDR",
                   ].map((tag, i) => (
                     <span key={i} className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-gray-500">
                       {tag}

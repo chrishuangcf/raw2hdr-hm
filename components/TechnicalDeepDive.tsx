@@ -32,10 +32,10 @@ const Section: React.FC<SectionProps> = ({ id, number, icon, accentColor, gradie
         <h2 className={`text-2xl md:text-3xl font-bold leading-tight bg-gradient-to-r ${gradientFrom} to-white bg-clip-text text-transparent`}>
           {title}
         </h2>
-        <p className="text-gray-500 mt-1 text-sm">{subtitle}</p>
+        <p className="text-gray-400 mt-1 text-base">{subtitle}</p>
       </div>
     </div>
-    <div className="space-y-5 text-gray-300 leading-relaxed">
+    <div className="space-y-6 text-gray-300 leading-relaxed text-base">
       {children}
     </div>
   </div>
@@ -83,13 +83,13 @@ const DetailsPanel: React.FC<{ title: string; children: React.ReactNode; accent?
     <div className={`rounded-xl border ${accent} overflow-hidden`}>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-5 py-3.5 text-left text-sm font-medium text-gray-300 hover:text-white hover:bg-white/[0.03] transition-colors gap-3"
+        className="w-full flex items-center justify-between px-5 py-3.5 text-left text-base font-medium text-gray-300 hover:text-white hover:bg-white/[0.03] transition-colors gap-3"
       >
         <span>{title}</span>
         <ChevronDown className={`w-4 h-4 text-gray-500 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="px-5 pb-5 pt-4 border-t border-white/5 space-y-3 text-sm text-gray-400 leading-relaxed">
+        <div className="px-5 pb-5 pt-4 border-t border-white/5 space-y-4 text-base text-gray-400 leading-relaxed">
           {children}
         </div>
       )}
@@ -365,20 +365,20 @@ const FormatComparisonTable: React.FC = () => (
 const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
   const navigate = useNavigate();
   const tocItems = [
-    { id: 'demosaic', label: '01. RAW Demosaic' },
-    { id: 'pipeline', label: '02. Color Pipeline' },
-    { id: 'metering', label: '03. Exposure Metering' },
+    { id: 'demosaic',   label: '01. RAW Demosaic' },
+    { id: 'pipeline',   label: '02. Color Pipeline' },
+    { id: 'lens',       label: '03. Lens Correction' },
     { id: 'lut-engine', label: '04. 3D LUT Engine' },
-    { id: 'hdr-lut', label: '05. HDR LUT Problem' },
-    { id: 'gainmap', label: '06. Gain Map vs Raw-Native' },
-    { id: 'tiff', label: '07. Why TIFF & DNG Fall Short' },
-    { id: 'hlg', label: '08. HLG Encoding' },
-    { id: 'canvas', label: '09. HDR Canvas Problem' },
-    { id: 'filmicfx', label: '10. Filmic F/X & Frames' },
-    { id: 'cache', label: '11. LUT Cache' },
-    { id: 'logprofile', label: '12. Log Profile System' },
-    { id: 'lens', label: '13. Lens Correction' },
-    { id: 'arch', label: '14. Architectural Overview' },
+    { id: 'logprofile', label: '05. Log Profile System' },
+    { id: 'metering',   label: '06. Exposure Metering' },
+    { id: 'cache',      label: '07. LUT Cache' },
+    { id: 'hdr-lut',    label: '08. HDR LUT Problem' },
+    { id: 'tiff',       label: '09. Why TIFF & DNG Fall Short' },
+    { id: 'gainmap',    label: '10. Gain Map vs Raw-Native' },
+    { id: 'hlg',        label: '11. HLG Encoding' },
+    { id: 'canvas',     label: '12. HDR Canvas Problem' },
+    { id: 'filmicfx',   label: '13. Filmic F/X & Frames' },
+    { id: 'arch',       label: '14. Architectural Overview' },
     { id: 'references', label: '15. References' },
   ];
 
@@ -562,28 +562,45 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
           </Section>
 
           {/* ─── 03 ─── */}
-          <Section id="metering" number="03" icon={<Gauge className="w-5 h-5 text-cyan-400" />}
-            accentColor="bg-cyan-500/10" gradientFrom="from-cyan-300"
-            title="Exposure Metering" subtitle="Center-weighted in software — consistent baseline across all 60+ LUT thumbnails">
-            <p>Every LUT preview must share the same exposure baseline. Without this, brightness differences between thumbnails would reflect exposure variation rather than the LUT itself, making comparison unreliable.</p>
-            <p>raw2hdr mirrors physical center-weighted metering: a central region of the image is analyzed using perceptual luminance weighting. The result is compared to a photographic neutral midtone reference, yielding the EV compensation applied identically to every LUT preview.</p>
-            <MeteringChart />
+          <Section id="lens" number="03" icon={<Eye className="w-5 h-5 text-indigo-400" />}
+            accentColor="bg-indigo-500/10" gradientFrom="from-indigo-300"
+            title="Lens Correction" subtitle="Radial distortion and vignetting corrected in linear light — the only physically correct stage">
+            <p>Lens correction is applied after demosaic but before log encoding, LUT application, or HDR extension. This staging reflects the physics of what lens distortions actually are.</p>
+            <div className="space-y-3">
+              {[
+                { title: 'Vignetting is multiplicative in linear light', detail: 'Vignetting attenuates light by a position-dependent factor. Correcting it by multiplying the inverse is physically exact only in linear light. After gamma or log encoding, the correction introduces systematic tonal errors.', color: 'border-indigo-500/25 bg-indigo-500/5' },
+                { title: 'Bilinear interpolation is correct in linear', detail: 'Averaging two neighboring pixels during geometric warp produces the physically correct intermediate value only in linear space. Averaging two log-encoded values produces a systematically different result.', color: 'border-blue-500/25 bg-blue-500/5' },
+                { title: 'Correction before HDR extension prevents over-encoding', detail: 'A corner pixel darkened 10% by vignetting, when corrected in linear, may now exceed SDR white — placing it in the HDR extension path. If corrected after HLG encoding, that pixel would be incorrectly placed in the signal range.', color: 'border-cyan-500/25 bg-cyan-500/5' },
+              ].map((item, i) => (
+                <div key={i} className={`p-4 rounded-xl border ${item.color}`}>
+                  <div className="text-sm font-bold text-white mb-1">{item.title}</div>
+                  <div className="text-xs text-gray-400 leading-relaxed">{item.detail}</div>
+                </div>
+              ))}
+            </div>
+            <ColorSpaceBar />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
+                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Distortion Model</div>
+                <p className="text-sm text-gray-400">A/B/C polynomial radial model from the Lensfun database. Applied as an inverse warp (output to source) — no holes in the corrected image. Resolution-independent.</p>
+              </div>
+              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
+                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">GPU Execution</div>
+                <p className="text-sm text-gray-400">Both geometric warp and vignetting run as GPU shader programs — no inter-pixel dependencies, trivially parallelised across millions of pixels per image.</p>
+              </div>
+            </div>
 
-            <DetailsPanel title="The physical camera metering analogy" accent="border-cyan-500/20">
-              <p>Camera metering modes differ in which pixels of the scene they use to estimate the "correct" exposure. Evaluative/matrix metering divides the frame into zones and applies a weighted formula. Spot metering uses only the central 1–5% of the frame. <strong className="text-white">Center-weighted metering</strong> concentrates 60–80% of the calculation on a circular central region, under the assumption that the primary subject is positioned there.</p>
-              <p>Center-weighted metering dates to the earliest generation of automatic-exposure SLRs in the 1970s — the Canon AE-1, the Nikon F2S, the Olympus OM-1 — and has remained a standard metering mode in every professional camera since. Its longevity reflects its practical reliability: for the vast majority of photographic compositions, the subject is in or near the centre, and metering that region correctly exposes the subject regardless of what the background or periphery is doing.</p>
-              <p>raw2hdr's software metering mirrors this approach exactly. A central region of the image is isolated and the perceptual luminance average is computed, weighting channels according to human visual sensitivity to each colour. That average is compared to a photographic reference point for neutral midtone exposure. The ratio, expressed in exposure value stops, becomes the EV compensation.</p>
-              <p>A positive EV result means the centre is underexposed relative to middle grey and the pipeline will brighten. A negative result means the centre is overexposed and the pipeline will pull down. The magnitude is typically in the range of ±1.5 stops for well-lit subjects; extreme high-key or low-key scenes will produce values at the edges of that range.</p>
+            <DetailsPanel title="Radial distortion correction — polynomial inverse warp" accent="border-indigo-500/20">
+              <p>All photographic lenses exhibit some degree of radial distortion: the scale of the image changes as a function of distance from the optical axis. <strong className="text-white">Barrel distortion</strong> (more scale at the centre than edges) is characteristic of wide-angle lenses, zoom lenses at their shortest focal lengths, and most smartphone lenses. <strong className="text-white">Pincushion distortion</strong> (more scale at the edges than centre) is characteristic of telephoto lenses. Moderate zoom lenses often show complex distortion that is barrel-type at short focal lengths and pincushion at long, with a "wavy" or "mustache" characteristic at some ranges.</p>
+              <p>The correction is applied as an inverse warp: for each pixel position in the output image, compute the corresponding position in the source (undistorted) image, and sample that position using bilinear interpolation. The inverse direction — output to source, not source to output — is necessary to avoid holes in the corrected image (every output pixel has exactly one source sample; the forward direction would leave some output pixels with no source mapping).</p>
+              <p>The mathematical model is the standard polynomial radial model employed by the Lensfun open database, which provides distortion coefficients for thousands of lens-camera combinations. The correction polynomial is applied in normalised image coordinates, making it independent of image resolution and correctly applicable at any output scale.</p>
             </DetailsPanel>
 
-            <Callout variant="note">
-              <strong>Why not global average?</strong> A portrait against a bright sky produces an average dominated by sky luminance — the subject ends up dark in every LUT preview. Center-weighted metering assumes the photographer aimed at their subject, which holds for the vast majority of compositions.
-            </Callout>
-
-            <DetailsPanel title="Why consistent metering across all 60+ LUT thumbnails matters" accent="border-cyan-500/20">
-              <p>The EV value derived from center metering is applied <em>identically</em> to every LUT preview generated for that RAW image. This is what makes the LUT selection grid visually coherent: all 60+ previews are at the same exposure level, so the difference a viewer sees between thumbnails reflects only the LUT's colour science and tonal character — not accidental brightness differences.</p>
-              <p>Without this consistent baseline, some LUT previews would be brighter or darker than others for reasons that have nothing to do with the LUT itself. A LUT that naturally produces brighter midtones would be indistinguishable from a LUT that simply received a brighter-metered input. The photographer's ability to compare film simulations on visual merit alone requires that exposure is the controlled variable, not a confounding one.</p>
-              <p>For exceptions — wide landscapes where the subject spans the full frame, or deliberately periphery-focused compositions — the manual exposure slider in the editor provides adjustment. But the center-metered default eliminates the need for manual adjustment in the cases that matter most.</p>
+            <DetailsPanel title="Vignetting correction in polar coordinates" accent="border-indigo-500/20">
+              <p>Natural vignetting produces a characteristic circular darkening centred on the optical axis, with the darkening increasing monotonically toward the corners. The profile of the falloff varies with lens design, aperture, and focal length.</p>
+              <p>The correction is a multiplicative brightening applied in polar-coordinate space: for each pixel, compute its distance from the image centre normalised to the half-diagonal, evaluate the correction polynomial at that radius, and multiply the pixel value by the correction factor. The correction is the reciprocal of the vignetting attenuation function, so applying it in linear light exactly restores the true scene luminance at each position.</p>
+              <p>The vignetting model is also sourced from the Lensfun database. Higher-order polynomial terms allow the correction to accurately model lenses with complex vignetting profiles — for example, lenses that vignette moderately at the edges but sharply at the extreme corners due to mechanical vignetting at the lens mount.</p>
+              <p>Because vignetting correction increases the brightness of corner and edge pixels, it must be applied <em>before</em> HDR encoding to ensure that the recovered highlight values in those regions are correctly placed in the HDR signal range. A corner sky pixel that was 10% darker than the centre due to vignetting, when corrected in linear light, may now have a scene-linear value above SDR white — entering the same highlight extension path the rest of the sky went through. If vignetting correction were applied <em>after</em> HDR encoding, that pixel would have been incorrectly encoded at the vignetting-darkened level and the correction would attempt to brighten an already-encoded value in HLG space, producing an incorrect and visually inconsistent result.</p>
             </DetailsPanel>
           </Section>
 
@@ -617,92 +634,114 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
               </div>
             </div>
 
-            <DetailsPanel title="How other apps apply LUTs — and why the opacity slider exists" accent="border-red-500/20">
-              <p>Most photo apps that offer LUT support apply them to an already-rendered image. The RAW is decoded through the camera's colour science, tone-mapped to an sRGB canvas, then the LUT runs on top of that output. The problem: the LUT was designed to receive log-encoded signal — F-Log2, V-Log, S-Log3 — not a finished sRGB image.</p>
+            <DetailsPanel title="Three ways apps apply LUTs — and the trade-off each makes" accent="border-red-500/20">
+              <p>There are three distinct approaches to applying LUTs on mobile. Each solves the input signal problem differently, and each makes a different trade-off.</p>
 
-              <div className="mt-3 grid sm:grid-cols-2 gap-3">
-                <div className="rounded-xl bg-red-500/5 border border-red-500/20 p-4 space-y-2">
-                  <div className="text-[10px] font-mono text-red-400 uppercase tracking-widest">Standard app path</div>
+              <div className="mt-4 space-y-4">
+
+                {/* Path 1 */}
+                <div className="rounded-xl bg-red-500/5 border border-red-500/20 p-4 space-y-3">
+                  <div className="text-[10px] font-mono text-red-400 uppercase tracking-widest">Path 1 — LUT as overlay on rendered still</div>
+                  <p className="text-xs text-gray-400">The RAW is decoded through the camera's colour science, tone-mapped to an sRGB canvas, then the LUT runs on top. The LUT was designed for log-encoded signal — not a finished sRGB image. Two successive non-linear curves stack on the same tonal data: the camera's S-curve first, then the LUT's S-curve. Highlights that were near-white clip. Shadows get double-manipulated. Colours drift in two directions at once.</p>
                   <div className="font-mono text-xs space-y-1 text-gray-400">
                     {[
-                      { text: 'RAW file', arrow: false, color: '' },
+                      { text: 'RAW still', arrow: false, color: '' },
                       { text: '↓', arrow: true },
-                      { text: 'Camera colour science + tone curve', arrow: false, color: 'text-orange-400' },
+                      { text: 'Camera colour science + tone curve baked in', arrow: false, color: 'text-orange-400' },
                       { text: '↓', arrow: true },
-                      { text: 'sRGB 8-bit rendered image', arrow: false, color: '' },
+                      { text: 'LUT applied as colour overlay', arrow: false, color: 'text-red-400' },
                       { text: '↓', arrow: true },
-                      { text: 'LUT applied as overlay', arrow: false, color: 'text-red-400' },
-                      { text: '↓', arrow: true },
-                      { text: 'Opacity slider to reduce damage', arrow: false, color: 'text-red-400' },
+                      { text: 'Opacity slider to reduce the damage', arrow: false, color: 'text-red-400' },
                     ].map((row, i) => (
-                      <div key={i} className={`${row.arrow ? 'text-center text-gray-600' : row.color}`}>{row.text}</div>
+                      <div key={i} className={row.arrow ? 'text-center text-gray-600 py-0.5' : `px-3 py-2 rounded-lg border border-white/10 bg-black/20 ${row.color || 'text-gray-300'}`}>{row.text}</div>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {[
+                      { pro: true,  text: 'Works on any still or JPEG' },
+                      { pro: false, text: 'Wrong LUT input signal' },
+                      { pro: false, text: 'Double colour science stacking' },
+                      { pro: false, text: 'Opacity slider required' },
+                    ].map((r, i) => (
+                      <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border ${r.pro ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/5' : 'text-red-400 border-red-500/30 bg-red-500/5'}`}>
+                        {r.pro ? '+' : '−'} {r.text}
+                      </span>
                     ))}
                   </div>
                 </div>
-                <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-4 space-y-2">
-                  <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">raw2hdr path</div>
+
+                {/* Path 2 */}
+                <div className="rounded-xl bg-blue-500/5 border border-blue-500/20 p-4 space-y-3">
+                  <div className="text-[10px] font-mono text-blue-400 uppercase tracking-widest">Path 2 — Video pipeline capture, still extracted from frame</div>
+                  <p className="text-xs text-gray-400">A smarter approach used by some camera apps: instead of shooting a still photo, record through the <strong className="text-white">video pipeline</strong>. iPhone video outputs in Rec.709 by default — the same colour space that most LUT libraries include a dedicated input variant for. A Fujifilm PROVIA/Rec.709 LUT, for example, is explicitly designed to receive Rec.709 video signal and apply the PROVIA grade correctly. The LUT gets its expected input without any double-grading. On iPhone 14 Pro and later, apps can also capture <strong className="text-white">Apple Log video</strong> — a genuine log-encoded signal with wider dynamic range, compatible with log-input LUTs.</p>
+                  <p className="text-xs text-gray-400">The still image is then extracted as a frame from the video recording. The colour is correct. The trade-off is resolution: 4K video = ~8.3 megapixels. An iPhone 15 Pro RAW still captures 48 megapixels. For social sharing and screen viewing that gap is acceptable; for print or heavy cropping it is not.</p>
                   <div className="font-mono text-xs space-y-1 text-gray-400">
                     {[
-                      { text: 'RAW file', arrow: false, color: '' },
+                      { text: 'Video capture (Rec.709 or Apple Log)', arrow: false, color: 'text-blue-300' },
+                      { text: '↓', arrow: true },
+                      { text: 'LUT receives correct colour space input', arrow: false, color: 'text-blue-400' },
+                      { text: '↓', arrow: true },
+                      { text: 'Still frame extracted from video', arrow: false, color: '' },
+                      { text: '↓', arrow: true },
+                      { text: 'Capped at video resolution (~8 MP)', arrow: false, color: 'text-orange-400' },
+                    ].map((row, i) => (
+                      <div key={i} className={row.arrow ? 'text-center text-gray-600 py-0.5' : `px-3 py-2 rounded-lg border border-white/10 bg-black/20 ${row.color || 'text-gray-300'}`}>{row.text}</div>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {[
+                      { pro: true,  text: 'Correct LUT input signal' },
+                      { pro: true,  text: 'No opacity slider needed' },
+                      { pro: true,  text: 'No RAW file required' },
+                      { pro: false, text: 'Resolution capped at ~8 MP (4K video)' },
+                      { pro: false, text: 'Video pipeline DR narrower than RAW' },
+                      { pro: false, text: 'Compression and NR baked in' },
+                      { pro: false, text: 'No HDR output' },
+                    ].map((r, i) => (
+                      <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border ${r.pro ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/5' : 'text-red-400 border-red-500/30 bg-red-500/5'}`}>
+                        {r.pro ? '+' : '−'} {r.text}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Path 3 */}
+                <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-4 space-y-3">
+                  <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">Path 3 — Synthetic log from RAW linear (raw2hdr)</div>
+                  <p className="text-xs text-gray-400">The RAW still is decoded to a neutral linear baseline, then the correct log signal is synthesised mathematically before the LUT runs. No video pipeline required — the LUT still gets its expected input. Full RAW resolution and full sensor dynamic range are preserved. The output is encoded as HDR rather than SDR.</p>
+                  <div className="font-mono text-xs space-y-1 text-gray-400">
+                    {[
+                      { text: 'RAW still (full resolution)', arrow: false, color: '' },
                       { text: '↓', arrow: true },
                       { text: 'Neutral linear decode', arrow: false, color: '' },
                       { text: '↓', arrow: true },
-                      { text: 'Synthesise correct log signal', arrow: false, color: 'text-emerald-400' },
+                      { text: 'Synthesise correct log signal for LUT', arrow: false, color: 'text-emerald-400' },
                       { text: '↓', arrow: true },
                       { text: 'LUT receives expected input', arrow: false, color: 'text-emerald-400' },
                       { text: '↓', arrow: true },
-                      { text: 'HDR encode', arrow: false, color: '' },
+                      { text: 'HDR encode — highlights intact', arrow: false, color: 'text-emerald-400' },
                     ].map((row, i) => (
-                      <div key={i} className={`${row.arrow ? 'text-center text-gray-600' : row.color}`}>{row.text}</div>
+                      <div key={i} className={row.arrow ? 'text-center text-gray-600 py-0.5' : `px-3 py-2 rounded-lg border border-white/10 bg-black/20 ${row.color || 'text-gray-300'}`}>{row.text}</div>
                     ))}
                   </div>
-                </div>
-              </div>
-
-              <p className="mt-3"><strong className="text-white">The double colour science problem.</strong> When a LUT runs on an already-rendered sRGB image, two successive non-linear curves operate on the same tonal data. The camera already applied its S-curve — compressing highlights, lifting shadows, adjusting saturation. The LUT then applies its own S-curve on top. Highlights that were near-white in the sRGB image get compressed again and clip. Shadows that were already lifted get further manipulated. Colours drift in two directions at once.</p>
-
-              <div className="mt-3 rounded-xl overflow-hidden border border-zinc-700">
-                <div className="grid grid-cols-2 divide-x divide-zinc-700">
-                  <div className="p-4 space-y-2.5">
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-orange-400 mb-1">LUT as overlay — trade-offs</div>
+                  <div className="flex flex-wrap gap-2 pt-1">
                     {[
-                      { pro: true,  text: 'Works on any image, including JPEG' },
-                      { pro: true,  text: 'Fast — no RAW required' },
-                      { pro: true,  text: 'Easy to implement in any app' },
-                      { pro: false, text: 'LUT receives wrong input signal' },
-                      { pro: false, text: 'Camera curve + LUT curve double-stack' },
-                      { pro: false, text: 'Highlights clip from two compressions' },
-                      { pro: false, text: 'Colour banding on 8-bit quantized data' },
-                      { pro: false, text: 'Opacity slider needed to control damage' },
-                      { pro: false, text: 'Different cameras produce different results' },
-                    ].map((r, i) => (
-                      <div key={i} className="flex gap-2 text-xs text-gray-400">
-                        <span className={`flex-shrink-0 ${r.pro ? 'text-emerald-400' : 'text-red-400'}`}>{r.pro ? '+' : '−'}</span>
-                        <span>{r.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-4 space-y-2.5">
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-teal-400 mb-1">Correct log input — trade-offs</div>
-                    {[
-                      { pro: true,  text: 'LUT receives the signal it was designed for' },
-                      { pro: true,  text: 'No double colour science stacking' },
-                      { pro: true,  text: 'Consistent results across every camera' },
-                      { pro: true,  text: 'Highlights preserved from linear source data' },
-                      { pro: true,  text: 'No opacity workaround needed' },
+                      { pro: true,  text: 'Correct LUT input — every camera' },
+                      { pro: true,  text: 'Full RAW resolution' },
+                      { pro: true,  text: 'Full sensor dynamic range' },
+                      { pro: true,  text: 'HDR output' },
                       { pro: false, text: 'Requires the original RAW file' },
-                      { pro: false, text: 'More computationally intensive' },
                     ].map((r, i) => (
-                      <div key={i} className="flex gap-2 text-xs text-gray-400">
-                        <span className={`flex-shrink-0 ${r.pro ? 'text-emerald-400' : 'text-red-400'}`}>{r.pro ? '+' : '−'}</span>
-                        <span>{r.text}</span>
-                      </div>
+                      <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border ${r.pro ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/5' : 'text-red-400 border-red-500/30 bg-red-500/5'}`}>
+                        {r.pro ? '+' : '−'} {r.text}
+                      </span>
                     ))}
                   </div>
                 </div>
+
               </div>
 
-              <p className="mt-3 text-xs text-gray-500">The opacity slider is not a creative tool. It exists because the output of applying a LUT to a pre-rendered image is routinely too strong, too saturated, or incorrectly toned — and blending back toward the ungraded image is the only available correction. In raw2hdr there is no opacity slider for LUT strength because the LUT is applied to the correct input; the result is what the LUT was designed to produce at full strength.</p>
+              <p className="mt-3 text-xs text-gray-500">The video pipeline approach is a genuine solution to the LUT input problem — its colour accuracy is real. The trade-off is the resolution ceiling of video capture. The opacity slider in Path 1 is not a creative tool; it exists because the output is routinely wrong and blending back is the only available correction.</p>
             </DetailsPanel>
 
             <DetailsPanel title="Why wrong input encoding is unrecoverable in 3D colour" accent="border-teal-500/20">
@@ -815,7 +854,94 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
           </Section>
 
           {/* ─── 05 ─── */}
-          <Section id="hdr-lut" number="05" icon={<Zap className="w-5 h-5 text-yellow-400" />}
+          <Section id="logprofile" number="05" icon={<Settings className="w-5 h-5 text-cyan-400" />}
+            accentColor="bg-cyan-500/10" gradientFrom="from-cyan-300"
+            title="Log Profile System" subtitle="Data-driven per-manufacturer calibration — adding a new format requires only a new profile">
+            <p>Each manufacturer chose different log curve shapes, midpoint placements, and headroom ratios. None were coordinated across manufacturers. Rather than hardcoding these relationships, raw2hdr uses a fully data-driven profile system — adding support for a new log format requires only a new calibrated profile, with no changes to the processing pipeline itself.</p>
+            <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-5 space-y-3">
+              <div className="text-xs font-mono text-gray-500 uppercase tracking-widest mb-4">Profile Design Principles</div>
+              {[
+                ['Tonal alignment', 'Each profile aligns the manufacturer\'s midtone placement and tonal contrast range to match what the LUT expects — so the creative rendering lands in the right tonal position.'],
+                ['Colour balance calibration', 'Per-channel adjustments account for systematic colour offsets between a neutral decode and the manufacturer\'s native encoding, ensuring colour accuracy without manual correction.'],
+                ['HDR extension tuning', 'Each profile includes a highlight extension setting tuned to the aesthetic of that manufacturer\'s LUT library — some benefit from aggressive extension, others from restraint.'],
+              ].map(([param, desc], i) => (
+                <div key={i} className={`flex gap-4 py-3 border-b border-zinc-800/50 last:border-0 ${i === 0 ? '' : ''}`}>
+                  <div className="text-sm text-cyan-300 font-medium w-52 flex-shrink-0 leading-relaxed">{param}</div>
+                  <div className="text-xs text-gray-400 leading-relaxed">{desc}</div>
+                </div>
+              ))}
+            </div>
+            <Callout variant="note">
+              <strong>Calibration:</strong> Parameters are determined empirically by shooting a gray card and colour checker on each target camera, then iteratively adjusting until the synthetic log encode matches the camera SOOC JPEG across the full tonal range. The calibration absorbs any offset the manufacturer baked into their RAW-to-log pipeline.
+            </Callout>
+
+            <DetailsPanel title="Handling LUT output range variation" accent="border-cyan-500/20">
+              <p>LUTs from different sources embed different assumptions about their output range. A professionally-authored LUT pack designed for post-production will typically have its range already normalised. Community-authored packs, video-workflow LUTs, and packs designed for specific camera-native log signals often have systematic offsets: a black point that sits slightly above true zero, or a white point slightly below maximum, or a midtone that lands at a different tonal position than the pipeline expects.</p>
+              <p>The log profile system addresses this through a calibrated output normalisation step. The approach varies by LUT source — some packs are used directly without normalisation (applying corrections to an already-normalised pack would over-correct); others require range adjustment to fill the expected output window; and some require an additional midtone alignment step on top of range correction to handle manufacturers whose tonal conventions place midtones at different positions than standard.</p>
+              <p>The normalisation strategy is part of the profile — not a global setting — because different manufacturers and different LUT libraries have different characteristics. A profile tuned for one manufacturer's official LUT pack will not produce the same output range as one tuned for community-authored packs, and applying the wrong normalisation approach is the single most common cause of output that is systematically lighter, darker, or lower-contrast than the LUT was designed to produce.</p>
+            </DetailsPanel>
+          </Section>
+
+          {/* ─── 06 ─── */}
+          <Section id="metering" number="06" icon={<Gauge className="w-5 h-5 text-cyan-400" />}
+            accentColor="bg-cyan-500/10" gradientFrom="from-cyan-300"
+            title="Exposure Metering" subtitle="Center-weighted in software — consistent baseline across all 60+ LUT thumbnails">
+            <p>Every LUT preview must share the same exposure baseline. Without this, brightness differences between thumbnails would reflect exposure variation rather than the LUT itself, making comparison unreliable.</p>
+            <p>raw2hdr mirrors physical center-weighted metering: a central region of the image is analyzed using perceptual luminance weighting. The result is compared to a photographic neutral midtone reference, yielding the EV compensation applied identically to every LUT preview.</p>
+            <MeteringChart />
+
+            <DetailsPanel title="The physical camera metering analogy" accent="border-cyan-500/20">
+              <p>Camera metering modes differ in which pixels of the scene they use to estimate the "correct" exposure. Evaluative/matrix metering divides the frame into zones and applies a weighted formula. Spot metering uses only the central 1–5% of the frame. <strong className="text-white">Center-weighted metering</strong> concentrates 60–80% of the calculation on a circular central region, under the assumption that the primary subject is positioned there.</p>
+              <p>Center-weighted metering dates to the earliest generation of automatic-exposure SLRs in the 1970s — the Canon AE-1, the Nikon F2S, the Olympus OM-1 — and has remained a standard metering mode in every professional camera since. Its longevity reflects its practical reliability: for the vast majority of photographic compositions, the subject is in or near the centre, and metering that region correctly exposes the subject regardless of what the background or periphery is doing.</p>
+              <p>raw2hdr's software metering mirrors this approach exactly. A central region of the image is isolated and the perceptual luminance average is computed, weighting channels according to human visual sensitivity to each colour. That average is compared to a photographic reference point for neutral midtone exposure. The ratio, expressed in exposure value stops, becomes the EV compensation.</p>
+              <p>A positive EV result means the centre is underexposed relative to middle grey and the pipeline will brighten. A negative result means the centre is overexposed and the pipeline will pull down. The magnitude is typically in the range of ±1.5 stops for well-lit subjects; extreme high-key or low-key scenes will produce values at the edges of that range.</p>
+            </DetailsPanel>
+
+            <Callout variant="note">
+              <strong>Why not global average?</strong> A portrait against a bright sky produces an average dominated by sky luminance — the subject ends up dark in every LUT preview. Center-weighted metering assumes the photographer aimed at their subject, which holds for the vast majority of compositions.
+            </Callout>
+
+            <DetailsPanel title="Why consistent metering across all 60+ LUT thumbnails matters" accent="border-cyan-500/20">
+              <p>The EV value derived from center metering is applied <em>identically</em> to every LUT preview generated for that RAW image. This is what makes the LUT selection grid visually coherent: all 60+ previews are at the same exposure level, so the difference a viewer sees between thumbnails reflects only the LUT's colour science and tonal character — not accidental brightness differences.</p>
+              <p>Without this consistent baseline, some LUT previews would be brighter or darker than others for reasons that have nothing to do with the LUT itself. A LUT that naturally produces brighter midtones would be indistinguishable from a LUT that simply received a brighter-metered input. The photographer's ability to compare film simulations on visual merit alone requires that exposure is the controlled variable, not a confounding one.</p>
+              <p>For exceptions — wide landscapes where the subject spans the full frame, or deliberately periphery-focused compositions — the manual exposure slider in the editor provides adjustment. But the center-metered default eliminates the need for manual adjustment in the cases that matter most.</p>
+            </DetailsPanel>
+          </Section>
+
+          {/* ─── 07 ─── */}
+          <Section id="cache" number="07" icon={<Database className="w-5 h-5 text-emerald-400" />}
+            accentColor="bg-emerald-500/10" gradientFrom="from-emerald-300"
+            title="LUT Thumbnail Cache Architecture" subtitle="Single-decode strategy — 9x faster than naive per-LUT decode">
+            <p>Without caching, 60 LUT previews at roughly 3.3 seconds per full decode would take over 3 minutes. The cache architecture reduces this to approximately 21 seconds.</p>
+            <p>The key insight: all LUT previews for a given RAW share the same input — the neutral linear RGB decode at reduced resolution. The decode runs once; the buffer is held in memory and reused across all 60+ LUT applications.</p>
+            <LutCacheChart />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
+                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">In-Memory Cache</div>
+                <p className="text-sm text-gray-400">Generated PNG thumbnails held keyed by RAW basename + LUT identifier. A cache hit is instantaneous — bytes already in RAM, no I/O or processing.</p>
+              </div>
+              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
+                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">On-Disk Cache</div>
+                <p className="text-sm text-gray-400">Thumbnails written to the app temp directory organized by RAW basename. Persists across app launches. A disk hit requires only a file read (~10ms) with no processing.</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <MetricCard value="25%" label="Decode scale" sub="1/16th total pixels" color="bg-emerald-500/5 border border-emerald-500/20" />
+              <MetricCard value="750px" label="Thumbnail max size" sub="Native at 3x retina 250pt" color="bg-blue-500/5 border border-blue-500/20" />
+              <MetricCard value="18 MB" label="Memory for 60 thumbs" sub="~300KB x 60 LUT previews" color="bg-violet-500/5 border border-violet-500/20" />
+            </div>
+
+            <DetailsPanel title="Thumbnail quality and sizing — three competing constraints" accent="border-emerald-500/20">
+              <p>The 750px maximum dimension target was chosen to satisfy three competing constraints simultaneously:</p>
+              <p><strong className="text-white">Visual fidelity:</strong> 750px is large enough that the LUT's characteristic colour rendering, highlight treatment, shadow density, and tonal contrast are clearly visible in the selection grid at 3× retina screen density. A smaller target would make fine differences between similar LUTs indistinguishable.</p>
+              <p><strong className="text-white">Memory efficiency:</strong> At 750×500 pixels with 4 bytes per pixel as PNG, each thumbnail occupies roughly 300KB in memory. 60 thumbnails for a single RAW image require approximately 18MB — well within the memory budget of current devices without triggering pressure.</p>
+              <p><strong className="text-white">Retina alignment:</strong> 750px corresponds to 250 logical points at 3× display scale — matching the standard iPhone screen width in landscape for current Pro models — so the thumbnails can be displayed at native resolution without upsampling.</p>
+              <p>The exposure metering analysis also reads from the same cached buffer, so the EV value used to normalise all 60 thumbnails is computed from the same data without any additional decode overhead. When the user explicitly requests cache regeneration — after a LUT pack update, or after changing processing parameters — both cache levels are cleared and the full generation cycle runs again from the linear decode.</p>
+            </DetailsPanel>
+          </Section>
+
+          {/* ─── 08 ─── */}
+          <Section id="hdr-lut" number="08" icon={<Zap className="w-5 h-5 text-yellow-400" />}
             accentColor="bg-yellow-500/10" gradientFrom="from-yellow-300"
             title="The HDR LUT Problem" subtitle="Recovering the highlights that SDR LUTs silently discard">
             <p>All commercially distributed film simulation LUTs produce <strong className="text-white">8-bit SDR output</strong>. Their maximum value is display white — anything brighter is clipped. The scene-linear values above SDR white were never discarded in raw2hdr; they flow through the pipeline in parallel with the log-encoded signal.</p>
@@ -860,8 +986,78 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
 
           </Section>
 
-          {/* ─── 06 ─── */}
-          <Section id="gainmap" number="06" icon={<Triangle className="w-5 h-5 text-orange-400" />}
+          {/* ─── 09 ─── */}
+          <Section id="tiff" number="09" icon={<FileImage className="w-5 h-5 text-amber-400" />}
+            accentColor="bg-amber-500/10" gradientFrom="from-amber-300"
+            title="Why 16-bit TIFF, PSD, and DNG Don't Solve the HDR Problem" subtitle="Bit depth alone is not enough — the format, the transfer function, and OS support must all align">
+
+            <p>A natural question: if the problem is 8-bit precision, why not use a 16-bit file format? TIFF supports 16-bit per channel. PSD supports 16-bit and 32-bit modes. DNG stores the full-depth sensor data. These formats genuinely carry more data. So where does the dynamic range go?</p>
+
+            <p><strong className="text-white">Bit depth and dynamic range are not the same thing.</strong> Bit depth determines how many tonal steps exist between the darkest and brightest values a format can represent. Dynamic range determines what those darkest and brightest values actually mean on a display. A 16-bit TIFF has 65,536 steps per channel — an enormous amount of tonal precision. But every one of those steps lives within the SDR luminance range: from display black to display reference white. No value in the file means "brighter than white." The extra bits buy extraordinarily smooth gradients within that SDR window, but they do not extend the window itself.</p>
+
+            <p><strong className="text-white">The constraint is the transfer function, not the bit depth.</strong> TIFF and PSD files carry ICC colour profiles describing their colour space — sRGB, Adobe RGB, ProPhoto RGB, Display P3. Every one uses an SDR transfer function. The transfer function tells the display how to map code values to physical luminance. An SDR transfer function maps its maximum code value to SDR reference white — and nothing more. There is no value in the ICC vocabulary that means "render this pixel above reference white at extended luminance."</p>
+
+            <p><strong className="text-white">Even on an XDR or P3 display, SDR files render at SDR brightness.</strong> When iOS or macOS opens a 16-bit TIFF with a Display P3 ICC profile, the OS correctly uses the P3 colour gamut and preserves the 16-bit precision — but renders the content at SDR luminance. The Extended Dynamic Range rendering path is never activated because the file's ICC profile contains no instruction to trigger it. Reference white stays at the SDR brightness level. The display is physically capable of much more, but the file format gave it no instruction to use that capability.</p>
+
+            <p>This is the critical distinction: HEIC with BT.2100 HLG uses a completely different colour space descriptor — not an ICC profile, but an NCLX colour description specifying BT.2020 primaries and the HLG transfer function. When the OS reads this, it recognises the HDR transfer function and activates the EDR rendering path. Now values above HLG reference white are rendered at genuine extended luminance on capable hardware. The display is being told, through the file format itself, to use its full brightness range.</p>
+
+            <p>The paradox is real: a 10-bit HEIC with HLG produces a wider visible dynamic range on an HDR display than a 16-bit TIFF, despite fewer bits of precision. The TIFF has more steps but they are all confined within the SDR brightness window. The HLG HEIC has fewer steps but they span a luminance range that includes genuine highlights above reference white — the region where HDR displays physically emit more light.</p>
+
+            <TiffVsHeicChart />
+
+            <p>The deeper issue is not just display rendering. The formats most people reach for when they want "more quality" — TIFF, PSD, DNG — were designed for SDR delivery or camera archival. None of them carry a transfer function the OS can interpret as HDR:</p>
+
+            <FormatComparisonTable />
+
+            <DetailsPanel title="Why every ICC-based format — 8-bit or 16-bit — outputs SDR" accent="border-red-500/20">
+              <p>This is not specific to TIFF. JPEG, PNG, PSD, and DNG all share the same root cause: they describe colour using ICC profiles, and the classic ICC framework was designed for SDR reproduction. Whether the file is 8-bit or 32-bit float makes no difference — ICC profiles define a white point, and every code value in the file is mapped relative to that white point as the ceiling. More bits buys more precision between black and white; it does not raise white.</p>
+              <p className="mt-2">A 32-bit linear ProPhoto RGB TIFF has exceptional precision and an extraordinarily wide colour gamut — but its maximum code value still maps to display reference white. The ICC spec has no mechanism in its classic form to say "render this pixel <em>brighter</em> than reference white." The render chain is the same at every bit depth:</p>
+              <div className="mt-3 p-4 rounded-xl bg-black/40 border border-zinc-800 font-mono text-xs text-gray-400">
+                {([
+                  { sym: '', text: 'Any ICC-profiled file opened in macOS Preview / Lightroom / iOS Photos', indent: false },
+                  { sym: '↓', text: '', indent: false },
+                  { sym: '', text: 'Viewer reads embedded ICC profile (e.g. "Adobe RGB (1998)", "Display P3")', indent: false },
+                  { sym: '↓', text: '', indent: false },
+                  { sym: '', text: 'ICC color management applies rendering intent', indent: true },
+                  { sym: '', text: 'ICC white point mapped to display reference white', indent: true },
+                  { sym: '', text: 'Max code value → display white, regardless of scene luminance or bit depth', indent: true },
+                  { sym: '↓', text: '', indent: false },
+                  { sym: '', text: 'Converted to display color space · rendered at SDR brightness', indent: false },
+                  { sym: '↓', text: '', indent: false },
+                  { sym: '✗', text: 'Highlight headroom above scene white: invisible on every ICC format', indent: false },
+                  { sym: '', text: 'Data is in the file — unread, uncorrupted, unrendered', indent: false },
+                ] as { sym: string; text: string; indent: boolean }[]).map(({ sym, text, indent }, i) =>
+                  sym === '↓' ? (
+                    <div key={i} className="flex gap-3 text-gray-600">
+                      <span className="w-4 flex-shrink-0" />
+                      <span className="flex-1 text-center">{sym}</span>
+                    </div>
+                  ) : (
+                    <div key={i} className={`flex gap-3 ${sym === '✗' ? 'text-red-400' : ''} ${indent ? 'pl-4' : ''}`}>
+                      <span className="w-4 flex-shrink-0 text-center">{sym}</span>
+                      <span className="text-left">{text}</span>
+                    </div>
+                  )
+                )}
+              </div>
+              <p className="mt-3"><strong className="text-white">The ceiling is set by the transfer function, not the number of bits.</strong> Increasing bit depth from 8 to 16 or 32 only subdivides the same SDR luminance window more finely. The ICC extension that <em>does</em> address this — iccMAX — is covered in the panel below. The practical problem with iccMAX is not the spec; it is adoption.</p>
+            </DetailsPanel>
+
+            <DetailsPanel title="iccMAX — the ICC answer to HDR, and why it doesn't help" accent="border-orange-500/20">
+              <p>The ICC consortium recognised the luminance ceiling problem and published <strong className="text-white">iccMAX (ICC.2:2019)</strong> — an extended profile format that <em>can</em> express values above display reference white, supports float pixel storage, and is technically HDR-capable. So why doesn't the industry use it?</p>
+              <p className="mt-2">The problem is entirely on the consumption side. macOS Preview, iOS Photos, Adobe Photoshop, Lightroom, and Capture One all have no iccMAX support — files are either refused outright or silently interpreted as sRGB. A format is only as useful as the viewers that implement it, and iccMAX has essentially zero consumer adoption a decade after publication.</p>
+              <p className="mt-2">The industry concluded it was easier to move away from ICC for HDR delivery than to extend it. HEIC uses an NCLX colour descriptor (ITU-R BT.2100) that existing Apple OS decoders already understand. OpenEXR uses a scene-linear convention with no profile at all. iccMAX remains correct on paper and invisible in practice.</p>
+            </DetailsPanel>
+
+            <Callout variant="info">
+              <strong>What about OpenEXR?</strong> OpenEXR was designed by VFX and cinema production to be scene-referred — values above 1.0 are naturally HDR highlights. Every major CGI film has passed through OpenEXR at some point in its pipeline. But OpenEXR has no support in iOS Photos, Android Gallery, Instagram, or any consumer viewer. It lives in the professional pipeline, not on anyone's phone. The precision is there; the delivery path is not.
+            </Callout>
+
+            <p>raw2hdr's output format is the intersection of three requirements: a transfer function the OS understands as HDR (HLG), a container that carries the non-ICC metadata describing it (HEIC with NCLX), and OS-level support on the target device. On iOS, all three align. That is why the same RAW file that looks flat as a TIFF or DNG can glow on an iPhone OLED screen as a raw2hdr HEIC.</p>
+          </Section>
+
+          {/* ─── 10 ─── */}
+          <Section id="gainmap" number="10" icon={<Triangle className="w-5 h-5 text-orange-400" />}
             accentColor="bg-orange-500/10" gradientFrom="from-orange-300"
             title="SDR + Gain Map vs. Raw-Native HDR" subtitle="Seven fundamental problems with compositing two separately-rendered sources">
             <p>The gain map approach — Apple HEIC gain map, Google Ultra HDR — composites an 8-bit JPEG base with a secondary brightness-boost map. When both layers come from a unified pipeline (as in iPhone Photonic Engine) this works. The problems arise when the layers are rendered independently.</p>
@@ -971,78 +1167,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </div>
           </Section>
 
-          {/* ─── 07 ─── */}
-          <Section id="tiff" number="07" icon={<FileImage className="w-5 h-5 text-amber-400" />}
-            accentColor="bg-amber-500/10" gradientFrom="from-amber-300"
-            title="Why 16-bit TIFF, PSD, and DNG Don't Solve the HDR Problem" subtitle="Bit depth alone is not enough — the format, the transfer function, and OS support must all align">
-
-            <p>A natural question: if the problem is 8-bit precision, why not use a 16-bit file format? TIFF supports 16-bit per channel. PSD supports 16-bit and 32-bit modes. DNG stores the full-depth sensor data. These formats genuinely carry more data. So where does the dynamic range go?</p>
-
-            <p><strong className="text-white">Bit depth and dynamic range are not the same thing.</strong> Bit depth determines how many tonal steps exist between the darkest and brightest values a format can represent. Dynamic range determines what those darkest and brightest values actually mean on a display. A 16-bit TIFF has 65,536 steps per channel — an enormous amount of tonal precision. But every one of those steps lives within the SDR luminance range: from display black to display reference white. No value in the file means "brighter than white." The extra bits buy extraordinarily smooth gradients within that SDR window, but they do not extend the window itself.</p>
-
-            <p><strong className="text-white">The constraint is the transfer function, not the bit depth.</strong> TIFF and PSD files carry ICC colour profiles describing their colour space — sRGB, Adobe RGB, ProPhoto RGB, Display P3. Every one uses an SDR transfer function. The transfer function tells the display how to map code values to physical luminance. An SDR transfer function maps its maximum code value to SDR reference white — and nothing more. There is no value in the ICC vocabulary that means "render this pixel above reference white at extended luminance."</p>
-
-            <p><strong className="text-white">Even on an XDR or P3 display, SDR files render at SDR brightness.</strong> When iOS or macOS opens a 16-bit TIFF with a Display P3 ICC profile, the OS correctly uses the P3 colour gamut and preserves the 16-bit precision — but renders the content at SDR luminance. The Extended Dynamic Range rendering path is never activated because the file's ICC profile contains no instruction to trigger it. Reference white stays at the SDR brightness level. The display is physically capable of much more, but the file format gave it no instruction to use that capability.</p>
-
-            <p>This is the critical distinction: HEIC with BT.2100 HLG uses a completely different colour space descriptor — not an ICC profile, but an NCLX colour description specifying BT.2020 primaries and the HLG transfer function. When the OS reads this, it recognises the HDR transfer function and activates the EDR rendering path. Now values above HLG reference white are rendered at genuine extended luminance on capable hardware. The display is being told, through the file format itself, to use its full brightness range.</p>
-
-            <p>The paradox is real: a 10-bit HEIC with HLG produces a wider visible dynamic range on an HDR display than a 16-bit TIFF, despite fewer bits of precision. The TIFF has more steps but they are all confined within the SDR brightness window. The HLG HEIC has fewer steps but they span a luminance range that includes genuine highlights above reference white — the region where HDR displays physically emit more light.</p>
-
-            <TiffVsHeicChart />
-
-            <p>The deeper issue is not just display rendering. The formats most people reach for when they want "more quality" — TIFF, PSD, DNG — were designed for SDR delivery or camera archival. None of them carry a transfer function the OS can interpret as HDR:</p>
-
-            <FormatComparisonTable />
-
-            <DetailsPanel title="Why every ICC-based format — 8-bit or 16-bit — outputs SDR" accent="border-red-500/20">
-              <p>This is not specific to TIFF. JPEG, PNG, PSD, and DNG all share the same root cause: they describe colour using ICC profiles, and the classic ICC framework was designed for SDR reproduction. Whether the file is 8-bit or 32-bit float makes no difference — ICC profiles define a white point, and every code value in the file is mapped relative to that white point as the ceiling. More bits buys more precision between black and white; it does not raise white.</p>
-              <p className="mt-2">A 32-bit linear ProPhoto RGB TIFF has exceptional precision and an extraordinarily wide colour gamut — but its maximum code value still maps to display reference white. The ICC spec has no mechanism in its classic form to say "render this pixel <em>brighter</em> than reference white." The render chain is the same at every bit depth:</p>
-              <div className="mt-3 p-4 rounded-xl bg-black/40 border border-zinc-800 font-mono text-xs text-gray-400">
-                {([
-                  { sym: '', text: 'Any ICC-profiled file opened in macOS Preview / Lightroom / iOS Photos', indent: false },
-                  { sym: '↓', text: '', indent: false },
-                  { sym: '', text: 'Viewer reads embedded ICC profile (e.g. "Adobe RGB (1998)", "Display P3")', indent: false },
-                  { sym: '↓', text: '', indent: false },
-                  { sym: '', text: 'ICC color management applies rendering intent', indent: true },
-                  { sym: '', text: 'ICC white point mapped to display reference white', indent: true },
-                  { sym: '', text: 'Max code value → display white, regardless of scene luminance or bit depth', indent: true },
-                  { sym: '↓', text: '', indent: false },
-                  { sym: '', text: 'Converted to display color space · rendered at SDR brightness', indent: false },
-                  { sym: '↓', text: '', indent: false },
-                  { sym: '✗', text: 'Highlight headroom above scene white: invisible on every ICC format', indent: false },
-                  { sym: '', text: 'Data is in the file — unread, uncorrupted, unrendered', indent: false },
-                ] as { sym: string; text: string; indent: boolean }[]).map(({ sym, text, indent }, i) =>
-                  sym === '↓' ? (
-                    <div key={i} className="flex gap-3 text-gray-600">
-                      <span className="w-4 flex-shrink-0" />
-                      <span className="flex-1 text-center">{sym}</span>
-                    </div>
-                  ) : (
-                    <div key={i} className={`flex gap-3 ${sym === '✗' ? 'text-red-400' : ''} ${indent ? 'pl-4' : ''}`}>
-                      <span className="w-4 flex-shrink-0 text-center">{sym}</span>
-                      <span className="text-left">{text}</span>
-                    </div>
-                  )
-                )}
-              </div>
-              <p className="mt-3"><strong className="text-white">The ceiling is set by the transfer function, not the number of bits.</strong> Increasing bit depth from 8 to 16 or 32 only subdivides the same SDR luminance window more finely. The ICC extension that <em>does</em> address this — iccMAX — is covered in the panel below. The practical problem with iccMAX is not the spec; it is adoption.</p>
-            </DetailsPanel>
-
-            <DetailsPanel title="iccMAX — the ICC answer to HDR, and why it doesn't help" accent="border-orange-500/20">
-              <p>The ICC consortium recognised the luminance ceiling problem and published <strong className="text-white">iccMAX (ICC.2:2019)</strong> — an extended profile format that <em>can</em> express values above display reference white, supports float pixel storage, and is technically HDR-capable. So why doesn't the industry use it?</p>
-              <p className="mt-2">The problem is entirely on the consumption side. macOS Preview, iOS Photos, Adobe Photoshop, Lightroom, and Capture One all have no iccMAX support — files are either refused outright or silently interpreted as sRGB. A format is only as useful as the viewers that implement it, and iccMAX has essentially zero consumer adoption a decade after publication.</p>
-              <p className="mt-2">The industry concluded it was easier to move away from ICC for HDR delivery than to extend it. HEIC uses an NCLX colour descriptor (ITU-R BT.2100) that existing Apple OS decoders already understand. OpenEXR uses a scene-linear convention with no profile at all. iccMAX remains correct on paper and invisible in practice.</p>
-            </DetailsPanel>
-
-            <Callout variant="info">
-              <strong>What about OpenEXR?</strong> OpenEXR was designed by VFX and cinema production to be scene-referred — values above 1.0 are naturally HDR highlights. Every major CGI film has passed through OpenEXR at some point in its pipeline. But OpenEXR has no support in iOS Photos, Android Gallery, Instagram, or any consumer viewer. It lives in the professional pipeline, not on anyone's phone. The precision is there; the delivery path is not.
-            </Callout>
-
-            <p>raw2hdr's output format is the intersection of three requirements: a transfer function the OS understands as HDR (HLG), a container that carries the non-ICC metadata describing it (HEIC with NCLX), and OS-level support on the target device. On iOS, all three align. That is why the same RAW file that looks flat as a TIFF or DNG can glow on an iPhone OLED screen as a raw2hdr HEIC.</p>
-          </Section>
-
-          {/* ─── 08 ─── */}
-          <Section id="hlg" number="08" icon={<Monitor className="w-5 h-5 text-blue-400" />}
+          {/* ─── 11 ─── */}
+          <Section id="hlg" number="11" icon={<Monitor className="w-5 h-5 text-blue-400" />}
             accentColor="bg-blue-500/10" gradientFrom="from-blue-300"
             title="HLG Encoding" subtitle="Perceptual HDR without metadata fragility — the same file on every screen">
             <p>Two transfer functions dominate HDR: <strong className="text-white">PQ (SMPTE ST 2084)</strong> and <strong className="text-white">HLG (ITU-R BT.2100)</strong>. They represent fundamentally different philosophies.</p>
@@ -1112,8 +1238,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 09 ─── */}
-          <Section id="canvas" number="09" icon={<Sparkles className="w-5 h-5 text-pink-400" />}
+          {/* ─── 12 ─── */}
+          <Section id="canvas" number="12" icon={<Sparkles className="w-5 h-5 text-pink-400" />}
             accentColor="bg-pink-500/10" gradientFrom="from-pink-300"
             title="HDR Canvas Problem" subtitle="Every standard graphics API silently destroys HDR — and how raw2hdr avoids it">
             <p>Every standard 2D graphics system on iOS defaults to <strong className="text-white">8-bit sRGB compositing</strong>. Drawing a border, compositing a graphic overlay, or rendering text through any standard context irreversibly converts the pipeline to 8-bit, discarding all HDR data.</p>
@@ -1166,8 +1292,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 10 ─── */}
-          <Section id="filmicfx" number="10" icon={<Film className="w-5 h-5 text-amber-400" />}
+          {/* ─── 13 ─── */}
+          <Section id="filmicfx" number="13" icon={<Film className="w-5 h-5 text-amber-400" />}
             accentColor="bg-amber-500/10" gradientFrom="from-amber-300"
             title="Filmic F/X &amp; Frame Design" subtitle="Creative effects and compositional frames — both applied in the HDR buffer">
             <p>Film grain, light leaks, and lens flare are applied after the complete HLG encoding, directly onto the floating-point HLG pixel buffer. This means effects can reach brightness levels above SDR white — a light leak can genuinely glow, a flare can be brilliantly overexposed — rather than clipping at paper white the way any effect applied in a standard editing context would. The same applies to frame compositing: borders, typography, EXIF overlays, and graphic frame elements are all rendered in the same HDR-native context.</p>
@@ -1192,110 +1318,6 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             <DetailsPanel title="What the 8-bit bottleneck looks like for effects and frames" accent="border-amber-500/20">
               <p>When effects and frames pass through a standard 8-bit compositing context, the consequences are specific and visible on any HDR display: a light leak that should glow above reference white clips silently at paper white instead. Film grain applied in 8-bit space is coarser in the shadows than the highlights — the quantization floor is proportionally larger at low signal levels. A border rendered at sRGB 255 appears at a different perceptual brightness than the HDR reference white of the photograph beside it. The output HEIC may carry an HDR label, but the pixel data has been through an 8-bit bottleneck.</p>
               <p>The HDR Canvas section covers how raw2hdr constructs the native float context that avoids this. The point here is that it affects every creative operation equally — effects, borders, text, and overlays — which is why both are built on the same context rather than treated as separate problems.</p>
-            </DetailsPanel>
-          </Section>
-
-          {/* ─── 11 ─── */}
-          <Section id="cache" number="11" icon={<Database className="w-5 h-5 text-emerald-400" />}
-            accentColor="bg-emerald-500/10" gradientFrom="from-emerald-300"
-            title="LUT Thumbnail Cache Architecture" subtitle="Single-decode strategy — 9x faster than naive per-LUT decode">
-            <p>Without caching, 60 LUT previews at roughly 3.3 seconds per full decode would take over 3 minutes. The cache architecture reduces this to approximately 21 seconds.</p>
-            <p>The key insight: all LUT previews for a given RAW share the same input — the neutral linear RGB decode at reduced resolution. The decode runs once; the buffer is held in memory and reused across all 60+ LUT applications.</p>
-            <LutCacheChart />
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">In-Memory Cache</div>
-                <p className="text-sm text-gray-400">Generated PNG thumbnails held keyed by RAW basename + LUT identifier. A cache hit is instantaneous — bytes already in RAM, no I/O or processing.</p>
-              </div>
-              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">On-Disk Cache</div>
-                <p className="text-sm text-gray-400">Thumbnails written to the app temp directory organized by RAW basename. Persists across app launches. A disk hit requires only a file read (~10ms) with no processing.</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <MetricCard value="25%" label="Decode scale" sub="1/16th total pixels" color="bg-emerald-500/5 border border-emerald-500/20" />
-              <MetricCard value="750px" label="Thumbnail max size" sub="Native at 3x retina 250pt" color="bg-blue-500/5 border border-blue-500/20" />
-              <MetricCard value="18 MB" label="Memory for 60 thumbs" sub="~300KB x 60 LUT previews" color="bg-violet-500/5 border border-violet-500/20" />
-            </div>
-
-            <DetailsPanel title="Thumbnail quality and sizing — three competing constraints" accent="border-emerald-500/20">
-              <p>The 750px maximum dimension target was chosen to satisfy three competing constraints simultaneously:</p>
-              <p><strong className="text-white">Visual fidelity:</strong> 750px is large enough that the LUT's characteristic colour rendering, highlight treatment, shadow density, and tonal contrast are clearly visible in the selection grid at 3× retina screen density. A smaller target would make fine differences between similar LUTs indistinguishable.</p>
-              <p><strong className="text-white">Memory efficiency:</strong> At 750×500 pixels with 4 bytes per pixel as PNG, each thumbnail occupies roughly 300KB in memory. 60 thumbnails for a single RAW image require approximately 18MB — well within the memory budget of current devices without triggering pressure.</p>
-              <p><strong className="text-white">Retina alignment:</strong> 750px corresponds to 250 logical points at 3× display scale — matching the standard iPhone screen width in landscape for current Pro models — so the thumbnails can be displayed at native resolution without upsampling.</p>
-              <p>The exposure metering analysis also reads from the same cached buffer, so the EV value used to normalise all 60 thumbnails is computed from the same data without any additional decode overhead. When the user explicitly requests cache regeneration — after a LUT pack update, or after changing processing parameters — both cache levels are cleared and the full generation cycle runs again from the linear decode.</p>
-            </DetailsPanel>
-          </Section>
-
-          {/* ─── 12 ─── */}
-          <Section id="logprofile" number="12" icon={<Settings className="w-5 h-5 text-cyan-400" />}
-            accentColor="bg-cyan-500/10" gradientFrom="from-cyan-300"
-            title="Log Profile System" subtitle="Data-driven per-manufacturer calibration — adding a new format requires only a new profile">
-            <p>Each manufacturer chose different log curve shapes, midpoint placements, and headroom ratios. None were coordinated across manufacturers. Rather than hardcoding these relationships, raw2hdr uses a fully data-driven profile system — adding support for a new log format requires only a new calibrated profile, with no changes to the processing pipeline itself.</p>
-            <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-5 space-y-3">
-              <div className="text-xs font-mono text-gray-500 uppercase tracking-widest mb-4">Profile Design Principles</div>
-              {[
-                ['Tonal alignment', 'Each profile aligns the manufacturer\'s midtone placement and tonal contrast range to match what the LUT expects — so the creative rendering lands in the right tonal position.'],
-                ['Colour balance calibration', 'Per-channel adjustments account for systematic colour offsets between a neutral decode and the manufacturer\'s native encoding, ensuring colour accuracy without manual correction.'],
-                ['HDR extension tuning', 'Each profile includes a highlight extension setting tuned to the aesthetic of that manufacturer\'s LUT library — some benefit from aggressive extension, others from restraint.'],
-              ].map(([param, desc], i) => (
-                <div key={i} className={`flex gap-4 py-3 border-b border-zinc-800/50 last:border-0 ${i === 0 ? '' : ''}`}>
-                  <div className="text-sm text-cyan-300 font-medium w-52 flex-shrink-0 leading-relaxed">{param}</div>
-                  <div className="text-xs text-gray-400 leading-relaxed">{desc}</div>
-                </div>
-              ))}
-            </div>
-            <Callout variant="note">
-              <strong>Calibration:</strong> Parameters are determined empirically by shooting a gray card and colour checker on each target camera, then iteratively adjusting until the synthetic log encode matches the camera SOOC JPEG across the full tonal range. The calibration absorbs any offset the manufacturer baked into their RAW-to-log pipeline.
-            </Callout>
-
-            <DetailsPanel title="Handling LUT output range variation" accent="border-cyan-500/20">
-              <p>LUTs from different sources embed different assumptions about their output range. A professionally-authored LUT pack designed for post-production will typically have its range already normalised. Community-authored packs, video-workflow LUTs, and packs designed for specific camera-native log signals often have systematic offsets: a black point that sits slightly above true zero, or a white point slightly below maximum, or a midtone that lands at a different tonal position than the pipeline expects.</p>
-              <p>The log profile system addresses this through a calibrated output normalisation step. The approach varies by LUT source — some packs are used directly without normalisation (applying corrections to an already-normalised pack would over-correct); others require range adjustment to fill the expected output window; and some require an additional midtone alignment step on top of range correction to handle manufacturers whose tonal conventions place midtones at different positions than standard.</p>
-              <p>The normalisation strategy is part of the profile — not a global setting — because different manufacturers and different LUT libraries have different characteristics. A profile tuned for one manufacturer's official LUT pack will not produce the same output range as one tuned for community-authored packs, and applying the wrong normalisation approach is the single most common cause of output that is systematically lighter, darker, or lower-contrast than the LUT was designed to produce.</p>
-            </DetailsPanel>
-          </Section>
-
-          {/* ─── 13 ─── */}
-          <Section id="lens" number="13" icon={<Eye className="w-5 h-5 text-indigo-400" />}
-            accentColor="bg-indigo-500/10" gradientFrom="from-indigo-300"
-            title="Lens Correction" subtitle="Radial distortion and vignetting corrected in linear light — the only physically correct stage">
-            <p>Lens correction is applied after demosaic but before log encoding, LUT application, or HDR extension. This staging reflects the physics of what lens distortions actually are.</p>
-            <div className="space-y-3">
-              {[
-                { title: 'Vignetting is multiplicative in linear light', detail: 'Vignetting attenuates light by a position-dependent factor. Correcting it by multiplying the inverse is physically exact only in linear light. After gamma or log encoding, the correction introduces systematic tonal errors.', color: 'border-indigo-500/25 bg-indigo-500/5' },
-                { title: 'Bilinear interpolation is correct in linear', detail: 'Averaging two neighboring pixels during geometric warp produces the physically correct intermediate value only in linear space. Averaging two log-encoded values produces a systematically different result.', color: 'border-blue-500/25 bg-blue-500/5' },
-                { title: 'Correction before HDR extension prevents over-encoding', detail: 'A corner pixel darkened 10% by vignetting, when corrected in linear, may now exceed SDR white — placing it in the HDR extension path. If corrected after HLG encoding, that pixel would be incorrectly placed in the signal range.', color: 'border-cyan-500/25 bg-cyan-500/5' },
-              ].map((item, i) => (
-                <div key={i} className={`p-4 rounded-xl border ${item.color}`}>
-                  <div className="text-sm font-bold text-white mb-1">{item.title}</div>
-                  <div className="text-xs text-gray-400 leading-relaxed">{item.detail}</div>
-                </div>
-              ))}
-            </div>
-            <ColorSpaceBar />
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Distortion Model</div>
-                <p className="text-sm text-gray-400">A/B/C polynomial radial model from the Lensfun database. Applied as an inverse warp (output to source) — no holes in the corrected image. Resolution-independent.</p>
-              </div>
-              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">GPU Execution</div>
-                <p className="text-sm text-gray-400">Both geometric warp and vignetting run as GPU shader programs — no inter-pixel dependencies, trivially parallelised across millions of pixels per image.</p>
-              </div>
-            </div>
-
-            <DetailsPanel title="Radial distortion correction — polynomial inverse warp" accent="border-indigo-500/20">
-              <p>All photographic lenses exhibit some degree of radial distortion: the scale of the image changes as a function of distance from the optical axis. <strong className="text-white">Barrel distortion</strong> (more scale at the centre than edges) is characteristic of wide-angle lenses, zoom lenses at their shortest focal lengths, and most smartphone lenses. <strong className="text-white">Pincushion distortion</strong> (more scale at the edges than centre) is characteristic of telephoto lenses. Moderate zoom lenses often show complex distortion that is barrel-type at short focal lengths and pincushion at long, with a "wavy" or "mustache" characteristic at some ranges.</p>
-              <p>The correction is applied as an inverse warp: for each pixel position in the output image, compute the corresponding position in the source (undistorted) image, and sample that position using bilinear interpolation. The inverse direction — output to source, not source to output — is necessary to avoid holes in the corrected image (every output pixel has exactly one source sample; the forward direction would leave some output pixels with no source mapping).</p>
-              <p>The mathematical model is the standard polynomial radial model employed by the Lensfun open database, which provides distortion coefficients for thousands of lens-camera combinations. The correction polynomial is applied in normalised image coordinates, making it independent of image resolution and correctly applicable at any output scale.</p>
-            </DetailsPanel>
-
-            <DetailsPanel title="Vignetting correction in polar coordinates" accent="border-indigo-500/20">
-              <p>Natural vignetting produces a characteristic circular darkening centred on the optical axis, with the darkening increasing monotonically toward the corners. The profile of the falloff varies with lens design, aperture, and focal length.</p>
-              <p>The correction is a multiplicative brightening applied in polar-coordinate space: for each pixel, compute its distance from the image centre normalised to the half-diagonal, evaluate the correction polynomial at that radius, and multiply the pixel value by the correction factor. The correction is the reciprocal of the vignetting attenuation function, so applying it in linear light exactly restores the true scene luminance at each position.</p>
-              <p>The vignetting model is also sourced from the Lensfun database. Higher-order polynomial terms allow the correction to accurately model lenses with complex vignetting profiles — for example, lenses that vignette moderately at the edges but sharply at the extreme corners due to mechanical vignetting at the lens mount.</p>
-              <p>Because vignetting correction increases the brightness of corner and edge pixels, it must be applied <em>before</em> HDR encoding to ensure that the recovered highlight values in those regions are correctly placed in the HDR signal range. A corner sky pixel that was 10% darker than the centre due to vignetting, when corrected in linear light, may now have a scene-linear value above SDR white — entering the same highlight extension path the rest of the sky went through. If vignetting correction were applied <em>after</em> HDR encoding, that pixel would have been incorrectly encoded at the vignetting-darkened level and the correction would attempt to brighten an already-encoded value in HLG space, producing an incorrect and visually inconsistent result.</p>
             </DetailsPanel>
           </Section>
 
@@ -1474,6 +1496,48 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
                   body: 'Open-source library and database providing geometric distortion, chromatic aberration, and vignetting correction coefficients for a wide range of camera and lens combinations.',
                   url: 'https://lensfun.github.io/',
                   color: 'text-indigo-400 border-indigo-500/20 bg-indigo-500/5',
+                },
+                {
+                  tag: 'ICC.2:2019 — iccMAX',
+                  title: 'Specification ICC.2:2019 — iccMAX Profile Format',
+                  body: 'The ICC extended profile specification introducing HDR-capable profile classes, float pixel support, and spectral data. Technically addresses the luminance ceiling limitation of classic ICC — but with near-zero consumer software adoption as of 2025.',
+                  url: 'https://www.color.org/iccmax/index.xalter',
+                  color: 'text-orange-400 border-orange-500/20 bg-orange-500/5',
+                },
+                {
+                  tag: 'SMPTE ST 2084',
+                  title: 'SMPTE ST 2084: High Dynamic Range Electro-Optical Transfer Function of Mastering Reference Displays',
+                  body: 'Defines the PQ (Perceptual Quantizer) EOTF used in HDR10 and Dolby Vision. Encodes absolute nit values (0–10,000 cd/m²) rather than a relative scene-referred signal — requiring MaxCLL/MaxFALL metadata for correct display. Discussed in contrast to HLG\'s relative, metadata-free approach.',
+                  url: 'https://ieeexplore.ieee.org/document/7291452',
+                  color: 'text-red-400 border-red-500/20 bg-red-500/5',
+                },
+                {
+                  tag: 'Adobe DNG Specification',
+                  title: 'Digital Negative (DNG) Specification — Adobe',
+                  body: 'The formal specification for the DNG container format, covering linearisation tables, colour matrices, DNG camera profiles (DCP), and the AdobeRGB/linear ICC profile conventions used in DNG delivery. Relevant to the discussion of why DNG does not carry an HDR-capable transfer function.',
+                  url: 'https://helpx.adobe.com/camera-raw/using/adobe-dng-specification.html',
+                  color: 'text-blue-400 border-blue-500/20 bg-blue-500/5',
+                },
+                {
+                  tag: 'X-Rite ColorChecker',
+                  title: 'ColorChecker Classic — Spectral Reflectance Data',
+                  body: 'The X-Rite ColorChecker Classic is the industry standard colour reference target for camera profiling. Its 24 patches have published spectral reflectance values measured under D50 and D65 illuminants — the physical reference data that ICC camera profiling workflows compare against sensor captures.',
+                  url: 'https://www.xrite.com/categories/calibration-profiling/colorchecker-classic',
+                  color: 'text-yellow-400 border-yellow-500/20 bg-yellow-500/5',
+                },
+                {
+                  tag: 'LibRaw',
+                  title: 'LibRaw — Library for Reading RAW Files',
+                  body: 'The primary open-source C++ library for decoding manufacturer RAW formats, forked from Dave Coffin\'s dcraw. Powers the RAW decode in most non-commercial RAW processors. The configuration challenges discussed in the Architectural Overview section — default gamma, auto brightness normalization, highlight clipping — are documented in LibRaw\'s own API reference.',
+                  url: 'https://www.libraw.org/docs/API-overview.html',
+                  color: 'text-zinc-400 border-zinc-500/20 bg-zinc-500/5',
+                },
+                {
+                  tag: 'ACES Common LUT Format',
+                  title: 'Academy Color Encoding System — Common LUT Format (CLF)',
+                  body: 'The Academy S-2014-006 specification for a vendor-neutral LUT interchange format, defining 1D and 3D LUT structures, input/output colour space declarations, and the trilinear/tetrahedral interpolation conventions used in 3D colour transforms.',
+                  url: 'https://docs.acescentral.com/specifications/clf/',
+                  color: 'text-teal-400 border-teal-500/20 bg-teal-500/5',
                 },
               ].map((ref, i) => (
                 <a
