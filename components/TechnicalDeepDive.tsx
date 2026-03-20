@@ -617,6 +617,94 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
               </div>
             </div>
 
+            <DetailsPanel title="How other apps apply LUTs — and why the opacity slider exists" accent="border-red-500/20">
+              <p>Most photo apps that offer LUT support apply them to an already-rendered image. The RAW is decoded through the camera's colour science, tone-mapped to an sRGB canvas, then the LUT runs on top of that output. The problem: the LUT was designed to receive log-encoded signal — F-Log2, V-Log, S-Log3 — not a finished sRGB image.</p>
+
+              <div className="mt-3 grid sm:grid-cols-2 gap-3">
+                <div className="rounded-xl bg-red-500/5 border border-red-500/20 p-4 space-y-2">
+                  <div className="text-[10px] font-mono text-red-400 uppercase tracking-widest">Standard app path</div>
+                  <div className="font-mono text-xs space-y-1 text-gray-400">
+                    {[
+                      { text: 'RAW file', arrow: false, color: '' },
+                      { text: '↓', arrow: true },
+                      { text: 'Camera colour science + tone curve', arrow: false, color: 'text-orange-400' },
+                      { text: '↓', arrow: true },
+                      { text: 'sRGB 8-bit rendered image', arrow: false, color: '' },
+                      { text: '↓', arrow: true },
+                      { text: 'LUT applied as overlay', arrow: false, color: 'text-red-400' },
+                      { text: '↓', arrow: true },
+                      { text: 'Opacity slider to reduce damage', arrow: false, color: 'text-red-400' },
+                    ].map((row, i) => (
+                      <div key={i} className={`${row.arrow ? 'text-center text-gray-600' : row.color}`}>{row.text}</div>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-4 space-y-2">
+                  <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">raw2hdr path</div>
+                  <div className="font-mono text-xs space-y-1 text-gray-400">
+                    {[
+                      { text: 'RAW file', arrow: false, color: '' },
+                      { text: '↓', arrow: true },
+                      { text: 'Neutral linear decode', arrow: false, color: '' },
+                      { text: '↓', arrow: true },
+                      { text: 'Synthesise correct log signal', arrow: false, color: 'text-emerald-400' },
+                      { text: '↓', arrow: true },
+                      { text: 'LUT receives expected input', arrow: false, color: 'text-emerald-400' },
+                      { text: '↓', arrow: true },
+                      { text: 'HDR encode', arrow: false, color: '' },
+                    ].map((row, i) => (
+                      <div key={i} className={`${row.arrow ? 'text-center text-gray-600' : row.color}`}>{row.text}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <p className="mt-3"><strong className="text-white">The double colour science problem.</strong> When a LUT runs on an already-rendered sRGB image, two successive non-linear curves operate on the same tonal data. The camera already applied its S-curve — compressing highlights, lifting shadows, adjusting saturation. The LUT then applies its own S-curve on top. Highlights that were near-white in the sRGB image get compressed again and clip. Shadows that were already lifted get further manipulated. Colours drift in two directions at once.</p>
+
+              <div className="mt-3 rounded-xl overflow-hidden border border-zinc-700">
+                <div className="grid grid-cols-2 divide-x divide-zinc-700">
+                  <div className="p-4 space-y-2.5">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-orange-400 mb-1">LUT as overlay — trade-offs</div>
+                    {[
+                      { pro: true,  text: 'Works on any image, including JPEG' },
+                      { pro: true,  text: 'Fast — no RAW required' },
+                      { pro: true,  text: 'Easy to implement in any app' },
+                      { pro: false, text: 'LUT receives wrong input signal' },
+                      { pro: false, text: 'Camera curve + LUT curve double-stack' },
+                      { pro: false, text: 'Highlights clip from two compressions' },
+                      { pro: false, text: 'Colour banding on 8-bit quantized data' },
+                      { pro: false, text: 'Opacity slider needed to control damage' },
+                      { pro: false, text: 'Different cameras produce different results' },
+                    ].map((r, i) => (
+                      <div key={i} className="flex gap-2 text-xs text-gray-400">
+                        <span className={`flex-shrink-0 ${r.pro ? 'text-emerald-400' : 'text-red-400'}`}>{r.pro ? '+' : '−'}</span>
+                        <span>{r.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-4 space-y-2.5">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-teal-400 mb-1">Correct log input — trade-offs</div>
+                    {[
+                      { pro: true,  text: 'LUT receives the signal it was designed for' },
+                      { pro: true,  text: 'No double colour science stacking' },
+                      { pro: true,  text: 'Consistent results across every camera' },
+                      { pro: true,  text: 'Highlights preserved from linear source data' },
+                      { pro: true,  text: 'No opacity workaround needed' },
+                      { pro: false, text: 'Requires the original RAW file' },
+                      { pro: false, text: 'More computationally intensive' },
+                    ].map((r, i) => (
+                      <div key={i} className="flex gap-2 text-xs text-gray-400">
+                        <span className={`flex-shrink-0 ${r.pro ? 'text-emerald-400' : 'text-red-400'}`}>{r.pro ? '+' : '−'}</span>
+                        <span>{r.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <p className="mt-3 text-xs text-gray-500">The opacity slider is not a creative tool. It exists because the output of applying a LUT to a pre-rendered image is routinely too strong, too saturated, or incorrectly toned — and blending back toward the ungraded image is the only available correction. In raw2hdr there is no opacity slider for LUT strength because the LUT is applied to the correct input; the result is what the LUT was designed to produce at full strength.</p>
+            </DetailsPanel>
+
             <DetailsPanel title="Why wrong input encoding is unrecoverable in 3D colour" accent="border-teal-500/20">
               <p>A 3D LUT is a three-dimensional lookup table — typically a 33×33×33 grid of RGB output values. When a pixel with RGB values (R, G, B) enters the LUT, those three values serve as coordinates that identify a specific position inside the 3D cube. The eight nearest grid vertices are found, and the output is computed by trilinear interpolation between them.</p>
               <p>If the input signal is in the wrong encoding — say V-Log when the LUT expects F-Log2 — every pixel's RGB coordinates are wrong. The LUT is being indexed at the wrong position in three dimensions simultaneously. The output will exist (the LUT always produces a value for any input coordinate), but it will be wrong in every dimension: wrong tonality, wrong contrast, wrong colours. There is no "close enough" in 3D colour science; a wrong input encoding propagates through the entire 3D table in a non-recoverable way.</p>
