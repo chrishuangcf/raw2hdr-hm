@@ -120,13 +120,13 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           <div className="sticky top-20 space-y-1">
             <div className="text-xs font-mono text-gray-600 uppercase tracking-widest mb-4">Contents</div>
             {tocItems.map(item => (
-              <a
+              <button
                 key={item.id}
-                href={`#${item.id}`}
-                className="block text-xs text-gray-500 hover:text-white transition-colors py-1 px-2 rounded hover:bg-white/5"
+                onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })}
+                className="block w-full text-left text-xs text-gray-500 hover:text-white transition-colors py-1 px-2 rounded hover:bg-white/5"
               >
                 {item.label}
-              </a>
+              </button>
             ))}
           </div>
         </aside>

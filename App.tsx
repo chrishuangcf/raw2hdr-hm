@@ -482,14 +482,16 @@ const HomePage: React.FC = () => {
                 <div className="text-xs font-mono text-gray-600 uppercase tracking-widest mb-3">Also covered in the technical deep dive</div>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    'CIRAWFilter — full decode pipeline internals',
-                    'Synthetic log encoding from linear RAW',
-                    'LUT cache — 9× render speedup',
-                    'HLG headroom extension algorithm',
-                    'HDR compositing in native float context',
-                    'Exposure metering formula & EV curve',
-                    'Lens correction in linear light',
-                    'Cross-manufacturer LUT compatibility',
+                    "Why LibRaw & open-source RAW tools fall short on iOS",
+                    "CIRAWFilter — what Apple's native decode handles automatically",
+                    "Why there is no Android version yet",
+                    "Synthetic log encoding from linear RAW",
+                    "LUT cache — 9× render speedup",
+                    "HLG headroom extension algorithm",
+                    "HDR compositing in native float context",
+                    "Lens correction in linear light",
+                    "Cross-manufacturer LUT compatibility",
+                    "Why 16-bit TIFF, PSD & DNG don't unlock HDR",
                   ].map((tag, i) => (
                     <span key={i} className="px-3 py-1 rounded-full text-xs bg-white/5 border border-white/10 text-gray-500">
                       {tag}
