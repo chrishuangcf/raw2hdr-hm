@@ -592,7 +592,7 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             accentColor="bg-teal-500/10" gradientFrom="from-teal-300"
             title="3D LUT Engine — Cross-Manufacturer Compatibility" subtitle="Synthetic log encoding from neutral linear — any LUT, any camera">
             <p>LUTs are authored for one specific input format. A Fujifilm PROVIA LUT expects F-Log2/F-Gamut signal. Feed it V-Log signal and every output dimension is wrong. This is the traditional reason camera brand and LUT brand must match.</p>
-            <p>Because every RAW emerges as neutral linear sRGB, raw2hdr synthesises any log signal from scratch. For a Fujifilm LUT: convert linear sRGB to F-Gamut, apply the F-Log2 OETF. The LUT receives input indistinguishable from a Fujifilm camera signal.</p>
+            <p>Because every RAW decodes to the same neutral linear baseline, raw2hdr synthesises the correct log signal for any LUT before applying it — so a Fujifilm LUT receives Fujifilm-equivalent input regardless of which camera the RAW came from.</p>
             <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-5">
               <div className="text-xs font-mono text-gray-500 uppercase tracking-widest mb-4">Cross-Manufacturer Routing</div>
               <div className="flex flex-col items-center gap-3">
@@ -631,21 +631,98 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
 
             <DetailsPanel title="How this differs from calibration spiders and ICC colour checker workflows" accent="border-teal-500/20">
-              <p>Photographers and colourists are familiar with two traditional calibration approaches, and it is worth explaining why neither solves the problem raw2hdr's calibration addresses — because they are solving fundamentally different problems.</p>
+              <p>There are three distinct calibration problems in photography. Each answers a different question:</p>
 
-              <p><strong className="text-white">Display calibration with a spider (colorimeter/spectrophotometer).</strong> Devices like the X-Rite i1Display or Datacolor SpyderX attach to a monitor. The software displays a series of known colour patches on screen; the spider's optical sensor measures the actual light emitted by the panel for each patch; the difference between what was requested and what was physically emitted becomes the correction applied through an ICC display profile. The goal is <em>display accuracy</em> — ensuring the monitor reproduces colours faithfully so the photographer can trust what they see on screen. This has nothing to do with the camera's colour science, the RAW file, or LUT compatibility. A perfectly calibrated display will still show the wrong result if an F-Log2 LUT receives V-Log input.</p>
+              <div className="mt-3 grid gap-3">
+                {([
+                  {
+                    label: 'Display spider (colorimeter)',
+                    q: 'Does my monitor emit the right light?',
+                    how: 'Measures actual panel output against known patches. Correction applied as an ICC display profile.',
+                    target: 'Physical display output',
+                    color: 'border-blue-500/20 bg-blue-500/5',
+                    tag: 'text-blue-400',
+                  },
+                  {
+                    label: 'ICC colour checker',
+                    q: 'Does my camera capture physically accurate colours?',
+                    how: 'Maps camera sensor response to CIE XYZ via a shot colour chart. Saved as a DNG Camera Profile.',
+                    target: 'Physical colour truth',
+                    color: 'border-violet-500/20 bg-violet-500/5',
+                    tag: 'text-violet-400',
+                  },
+                  {
+                    label: 'raw2hdr log calibration',
+                    q: 'Does my synthetic log signal match what the LUT expects?',
+                    how: "Matches synthesised log encode to the manufacturer's SOOC JPEG across the full tonal range, absorbing firmware-level offsets.",
+                    target: 'LUT input fidelity',
+                    color: 'border-teal-500/20 bg-teal-500/5',
+                    tag: 'text-teal-400',
+                  },
+                ] as { label: string; q: string; how: string; target: string; color: string; tag: string }[]).map((item, i) => (
+                  <div key={i} className={`rounded-xl border p-4 space-y-1.5 ${item.color}`}>
+                    <div className={`text-[10px] font-mono uppercase tracking-widest ${item.tag}`}>{item.label}</div>
+                    <div className="text-xs font-semibold text-white">{item.q}</div>
+                    <div className="text-xs text-gray-400 leading-relaxed">{item.how}</div>
+                    <div className="text-[10px] text-gray-500">Target: <span className="text-gray-300">{item.target}</span></div>
+                  </div>
+                ))}
+              </div>
 
-              <p><strong className="text-white">Camera profiling with a physical colour checker.</strong> A photographer shoots a standardised colour target — an X-Rite ColorChecker Passport, a SpyderCHECKR 24, or similar chart with patches of known spectral reflectance — under controlled, measured lighting. Software then compares the camera's captured RGB values for each patch against the patches' known reference values (published by the chart manufacturer) and computes a correction transform. This transform is saved as a DNG Camera Profile or ICC input profile. When applied during RAW development, it maps the camera's sensor response to a "colourimetrically accurate" reproduction — the red patch looks like the reference red, the skin tone patch matches the reference skin tone, and so on.</p>
+              <p className="mt-4"><strong className="text-white">What about cross-camera ICC profiling?</strong> A more sophisticated use of ICC — shoot a Leica with a colour checker, get its ICC profile, then use a Fujifilm ICC profile as a source to build a Fujifilm-to-Leica colour transform. In theory this makes Fujifilm RAW files render with Leica's colour response. This is a real technique and it does achieve physical colour matching.</p>
 
-              <p>This approach answers the question: <em>"How do I make this camera reproduce colours that are measurably accurate against a physical reference?"</em> It creates a mapping from camera sensor space to a standardised colour space (usually ProPhoto RGB or CIE XYZ) that is metrologically correct — meaning a spectrophotometer pointed at the original scene and at the calibrated reproduction would read the same CIE coordinates.</p>
+              <p className="mt-2">But to understand why it still falls short for LUTs, it helps to understand what a colour checker profile physically is — and what it was never measured from.</p>
 
-              <p><strong className="text-white">Why neither approach solves the LUT compatibility problem.</strong> raw2hdr's calibration is asking an entirely different question: <em>"How do I synthesise a signal that is indistinguishable — from the LUT's perspective — from the signal the camera manufacturer's own encoding pipeline would have produced?"</em></p>
+              <div className="mt-3 rounded-xl bg-zinc-900/60 border border-zinc-800 p-4 space-y-3 text-xs text-gray-400">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-1">What a colour checker profile actually measures</div>
+                <p>A colour checker has ~24 reflective patches with known spectral values — all mid-tone, all within the camera's linear response range. Shot at one ISO, one white balance, one illuminant. The software builds a linear 3×3 matrix: <span className="text-white">camera RGB → CIE XYZ</span> for those tonal levels, under those conditions.</p>
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {([
+                    { label: 'Tonal range sampled', val: 'Mid-tones only', bad: true },
+                    { label: 'Highlights measured', val: 'None — patches top out at ~90% reflectance', bad: true },
+                    { label: 'Deep shadows measured', val: 'None — below ~3% reflectance', bad: true },
+                    { label: 'Transform type', val: 'Linear 3×3 matrix', bad: false },
+                    { label: 'ISO dependency', val: 'Valid at one ISO only', bad: true },
+                    { label: 'Illuminant dependency', val: 'Valid under one light only', bad: true },
+                  ] as { label: string; val: string; bad: boolean }[]).map((r, i) => (
+                    <div key={i} className="rounded-lg bg-black/30 border border-zinc-800 p-2.5 space-y-0.5">
+                      <div className="text-[10px] text-gray-500">{r.label}</div>
+                      <div className={r.bad ? 'text-red-400' : 'text-gray-300'}>{r.val}</div>
+                    </div>
+                  ))}
+                </div>
+                <p>Because the profile is a linear extrapolation from mid-tone patches, applying it to highlights means applying a relationship that was never measured there. The camera's actual behaviour in highlights — where the sensor begins to saturate, how it rolls off, whether colour shifts occur — is invisible to the profile. Same for deep shadows, where noise and dark current dominate.</p>
+              </div>
 
-              <p>This is not a colourimetric accuracy problem. A Fujifilm F-Log2 signal is not trying to be "accurate" in the ICC sense — it is trying to be a specific non-linear encoding with a specific midpoint placement, a specific contrast characteristic, a specific per-channel balance, and a specific relationship to the manufacturer's creative rendering. The F-Log2 curve was designed by Fujifilm's engineers as the <em>input contract</em> for their Film Simulation LUTs. Reproducing that contract requires matching the manufacturer's intent, not matching a physical colour reference.</p>
+              <p className="mt-3">LUTs encode the full non-linear tonal behaviour — built from real footage across the entire signal range, not a sparse mid-tone sample. Velvia's highlight rolloff and shadow saturation are not derivable from a colour matrix. They were measured and encoded across the whole tonal range deliberately.</p>
 
-              <p>An ICC profile built from a colour checker tells you the physically accurate RGB value for a given spectral stimulus. It does not tell you where Fujifilm places 18% grey in F-Log2 signal, or what per-channel gain offset Panasonic applies in V-Log relative to the theoretical V-Log curve, or how Leica's L-Log midpoint differs from the published specification by a fraction of a stop due to firmware-level tuning. These are the idiosyncratic, manufacturer-specific offsets that raw2hdr's calibration captures — and they are invisible to any ICC-based workflow because ICC profiles do not model log encoding behaviour, manufacturer-specific midpoint placement, or creative rendering intent.</p>
+              <div className="mt-3 rounded-xl overflow-hidden border border-zinc-700">
+                <div className="grid grid-cols-2 divide-x divide-zinc-700">
+                  <div className="p-4 space-y-2">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-violet-400 mb-1">ICC cross-profile captures</div>
+                    {[
+                      'Linear colour matrix (sensor → CIE XYZ)',
+                      'White point under measured illuminant',
+                      'Mid-tone colour accuracy vs physical reference',
+                    ].map((s, i) => <div key={i} className="flex gap-2 text-xs text-gray-400"><span className="text-violet-400 flex-shrink-0">·</span><span>{s}</span></div>)}
+                  </div>
+                  <div className="p-4 space-y-2">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-red-400 mb-1">ICC cross-profile cannot capture</div>
+                    {[
+                      'Non-linear highlight rolloff and shadow behaviour',
+                      'Tonal contrast shape across the full signal range',
+                      'Intentional colour shifts at high and low luminance',
+                      'Any behaviour outside the mid-tone patch range',
+                    ].map((s, i) => <div key={i} className="flex gap-2 text-xs text-gray-400"><span className="text-red-400 flex-shrink-0">·</span><span>{s}</span></div>)}
+                  </div>
+                </div>
+              </div>
 
-              <p>Put differently: an ICC-calibrated workflow ensures your <em>colours are physically correct</em>. raw2hdr's calibration ensures the <em>LUT receives exactly the signal it was designed to consume</em>. The first is about truth to the physical world. The second is about truth to the manufacturer's creative system — which is what makes a Fujifilm PROVIA LUT produce PROVIA-looking results, regardless of which camera captured the scene.</p>
+              <p className="mt-3">Cross-profiling a Sony to match Fujifilm colours exactly still leaves the tonal contract wrong. Eterna's desaturated skin tones are not a white point offset. Velvia's saturated greens are not a matrix entry. They are non-linear rendering decisions baked across the entire signal range — and the LUT expects its input to carry that same shape.</p>
+
+              <div className="mt-3 p-4 rounded-xl bg-teal-500/5 border border-teal-500/20">
+                <p className="text-sm"><strong className="text-white">The goal of raw2hdr's calibration:</strong> ensure the synthesised log signal is indistinguishable — from the LUT's perspective — from what the manufacturer's own pipeline would have produced. Not physical accuracy. Not colour matching. <em>LUT input fidelity</em> — so a Fujifilm PROVIA LUT produces PROVIA-looking results from any camera.</p>
+              </div>
             </DetailsPanel>
           </Section>
 
@@ -662,12 +739,11 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
 
             <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-5 space-y-4">
-              <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Highlight Recovery — 4 Steps</div>
+              <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Highlight Recovery — 3 Steps</div>
               {[
-                { num: '1', step: 'Linearize LUT output', desc: 'Remove sRGB gamma to recover linear-light values for everything below SDR white.', color: 'text-blue-400 border-blue-500/30' },
-                { num: '2', step: 'Extend highlights from scene-linear', desc: 'For pixels above SDR white, apply soft logarithmic extension. Each stop above white gets a progressively smaller boost — mirrors film shoulder rolloff.', color: 'text-yellow-400 border-yellow-500/30' },
-                { num: '3', step: 'Convert to Rec.2020', desc: 'Map wide-gamut colours into the HDR container colour volume.', color: 'text-emerald-400 border-emerald-500/30' },
-                { num: '4', step: 'Apply HLG OETF', desc: 'Map the extended linear range to HLG signal: ~75% for SDR-equivalent, ~25% for recovered highlight headroom.', color: 'text-orange-400 border-orange-500/30' },
+                { num: '1', step: 'Linearize LUT output', desc: 'Reverse the LUT output gamma to recover linear-light representation across the full tonal range.', color: 'text-blue-400 border-blue-500/30' },
+                { num: '2', step: 'Extend highlights with logarithmic rolloff', desc: 'Pixels above SDR white are smoothly compressed — each stop brighter gets a progressively smaller boost, mirroring film shoulder rolloff rather than clipping.', color: 'text-yellow-400 border-yellow-500/30' },
+                { num: '3', step: 'Encode to HDR', desc: 'The extended linear range is encoded into the HDR output file. SDR content maps to the lower signal range; recovered highlights occupy the upper headroom.', color: 'text-emerald-400 border-emerald-500/30' },
               ].map((item) => (
                 <div key={item.num} className="flex items-start gap-3">
                   <div className={`w-6 h-6 rounded-full border ${item.color} text-xs flex items-center justify-center flex-shrink-0 mt-0.5 font-mono`}>{item.num}</div>
