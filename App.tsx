@@ -269,93 +269,78 @@ const HomePage: React.FC = () => {
         {/* Full-width OS decision diagram */}
         <SdrConstraintDiagram />
 
-        {/* SDR problem cards — responsive grid */}
+        {/* Combined before→after cards */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             {
-              label: 'Highlights clip at 100 nits',
-              detail: 'The sky, a lamp, sunlight on water — anything brighter than 100 nits becomes a flat, featureless white patch. The gradation that makes a highlight look like light, not paper, is permanently discarded.',
-              color: 'border-amber-500/30 bg-amber-500/5',
-              dot: 'bg-amber-400',
+              problem: 'Highlights clip at 100 nits',
+              fix: 'Reach 1,000+ nits on HDR screens',
+              detail: 'Anything brighter than 100 nits becomes a flat white patch in JPEG. raw2hdr\'s HLG output preserves the full highlight curve — sunlight on water actually glows.',
+              border: 'border-amber-500/30',
+              bg: 'bg-amber-500/5',
+              fixColor: 'text-amber-300',
             },
             {
-              label: 'Shadows crush to pure black',
-              detail: 'Dark areas get pushed to pure black. The texture, colour, and depth that your camera actually captured in the shadows is gone — not compressed, gone.',
-              color: 'border-gray-600/40 bg-gray-800/30',
-              dot: 'bg-gray-500',
+              problem: 'Shadows crush to pure black',
+              fix: '16-bit pipeline — every step retained',
+              detail: 'Standard photos push dark areas to pure black permanently. Processing at 16-bit precision means shadow texture and colour survive all the way to the HDR output.',
+              border: 'border-gray-600/40',
+              bg: 'bg-gray-800/30',
+              fixColor: 'text-gray-300',
             },
             {
-              label: 'Colours squeezed into a narrow box',
-              detail: 'sRGB covers only 35% of what the human eye can see. Those vivid Fujifilm greens and deep ocean blues your sensor captured get mapped down or clipped to fit within an arbitrary 1990s boundary.',
-              color: 'border-rose-500/30 bg-rose-500/5',
-              dot: 'bg-rose-400',
+              problem: 'Colours squeezed into sRGB (35% of visible)',
+              fix: 'Rec.2020 — 75% of visible colour',
+              detail: 'sRGB maps vivid sensor colours down to fit a 1990s boundary. Rec.2020 output preserves the Fujifilm greens, deep ocean blues, and warm reds your sensor actually captured.',
+              border: 'border-rose-500/30',
+              bg: 'bg-rose-500/5',
+              fixColor: 'text-rose-300',
             },
             {
-              label: 'Gradients band instead of flow',
-              detail: '256 steps per colour channel is not enough for smooth sky gradients, skin tones, or out-of-focus backgrounds. You get visible stepping where there should be silky transitions — this is called banding.',
-              color: 'border-purple-500/30 bg-purple-500/5',
-              dot: 'bg-purple-400',
+              problem: 'Gradients band — 256 steps per channel',
+              fix: '1,024 steps — smooth sky to shadow',
+              detail: '8-bit isn\'t enough for seamless sky gradients or skin tones. 10-bit HDR quadruples the precision, eliminating the staircase stepping visible in large soft areas.',
+              border: 'border-purple-500/30',
+              bg: 'bg-purple-500/5',
+              fixColor: 'text-purple-300',
             },
             {
-              label: 'No HDR metadata — OS defaults to SDR',
-              detail: 'JPEG, PNG, and even 16-bit TIFF carry no HLG or BT.2100 colour space tag. The OS has no signal to unlock HDR rendering, so every image is treated as SDR regardless of how much dynamic range the original sensor captured.',
-              color: 'border-cyan-500/30 bg-cyan-500/5',
-              dot: 'bg-cyan-400',
+              problem: 'No HDR metadata — OS renders as SDR',
+              fix: 'BT.2100 HLG tag unlocks Apple EDR',
+              detail: 'JPEG, PNG, and even 16-bit TIFF carry no HDR signal. raw2hdr writes the BT.2100 HLG colour space descriptor — the OS sees it and enables the full EDR luminance headroom.',
+              border: 'border-cyan-500/30',
+              bg: 'bg-cyan-500/5',
+              fixColor: 'text-cyan-300',
             },
             {
-              label: 'Locked out of HDR social sharing',
-              detail: 'Instagram, Threads, and iMessage detect the BT.2100 HLG colour space tag to preserve HDR on compatible screens. Without it — as with any JPEG or PNG — the platform treats the image as SDR and the glow is gone permanently.',
-              color: 'border-teal-500/30 bg-teal-500/5',
-              dot: 'bg-teal-400',
+              problem: 'HDR lost on Instagram & iMessage',
+              fix: 'BT.2100 HLG preserved end-to-end',
+              detail: 'Platforms detect the HLG colour space tag to keep HDR intact. raw2hdr writes that tag — your export glows on every compatible screen, no re-encoding, no quality loss.',
+              border: 'border-teal-500/30',
+              bg: 'bg-teal-500/5',
+              fixColor: 'text-teal-300',
             },
           ].map((item, i) => (
-            <div key={i} className={`flex items-start gap-4 p-5 rounded-2xl border ${item.color}`}>
-              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${item.dot}`} />
-              <div>
-                <div className="text-sm font-bold text-white mb-1">{item.label}</div>
-                <div className="text-sm text-gray-400 leading-relaxed">{item.detail}</div>
-              </div>
+            <div key={i} className={`p-5 rounded-2xl border ${item.border} ${item.bg} space-y-3`}>
+              <div className="text-xs text-red-400/70 font-mono line-through">{item.problem}</div>
+              <div className={`text-sm font-bold ${item.fixColor}`}>{item.fix}</div>
+              <div className="text-sm text-gray-400 leading-relaxed">{item.detail}</div>
             </div>
           ))}
         </div>
 
-        {/* HDR benefit cards */}
-        <div className="pt-4 border-t border-white/5 space-y-8">
-          <p className="text-gray-400 text-lg leading-relaxed max-w-3xl">
-            <span className="text-white font-semibold">Over 1 billion colours</span>, real luminance that genuinely glows, and shadows that hold their depth — 10-bit HDR brings back the full presence of the moment you captured.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FeatureCard
-              title="Glowing Highlights"
-              description="SDR whites clip at 100 nits and look flat. raw2hdr's HLG output lets highlights reach 1,000+ nits — they appear to emit light on modern iPhone OLED screens."
-              icon={<Zap className="w-6 h-6" />}
-            />
-            <FeatureCard
-              title="Deeper Shadows"
-              description="Standard JPEGs crush shadow detail to pure black. A 16-bit RAW pipeline retains every step, so your darkest areas still hold texture and colour."
-              icon={<Eye className="w-6 h-6" />}
-            />
-            <FeatureCard
-              title="Rec.2020 Colour"
-              description="The Rec.2020 wide gamut captures nearly all visible colour. Your Fujifilm Velvia reds and deep ocean blues — that sRGB simply cannot represent — are now preserved."
-              icon={<Aperture className="w-6 h-6" />}
-            />
-            <FeatureCard
-              title="Instagram & Threads HDR"
-              description="Instagram, Threads, and iMessage support BT.2100 HLG natively. Share your raw2hdr export and the HDR glow is preserved — no re-encoding, no quality loss."
-              icon={<Share2 className="w-6 h-6" />}
-            />
-            <FeatureCard
-              title="Film Looks in HDR (Pro)"
-              description="50+ curated LUTs — Fujifilm ACROS, Velvia, Panasonic Teal Orange, classic Kodak Portra and more — combined with HDR output. You get the analogue feel and the full tonal range."
-              icon={<Layers className="w-6 h-6" />}
-            />
-            <FeatureCard
-              title="Frame Designs"
-              description="Film strip, EXIF card, journal with live weather and GPS, colour palette swatches — fully customisable borders that make HDR content appear to emit light on a wall."
-              icon={<ImageIcon className="w-6 h-6" />}
-            />
-          </div>
+        {/* App-specific features (no SDR counterpart) */}
+        <div className="grid sm:grid-cols-2 gap-6">
+          <FeatureCard
+            title="Film Looks in HDR (Pro)"
+            description="50+ curated LUTs — Fujifilm ACROS, Velvia, Panasonic Teal Orange, classic Kodak Portra and more — combined with HDR output. You get the analogue feel and the full tonal range."
+            icon={<Layers className="w-6 h-6" />}
+          />
+          <FeatureCard
+            title="Frame Designs"
+            description="Film strip, EXIF card, journal with live weather and GPS, colour palette swatches — fully customisable borders that make HDR content appear to emit light on a wall."
+            icon={<ImageIcon className="w-6 h-6" />}
+          />
         </div>
 
       </section>
