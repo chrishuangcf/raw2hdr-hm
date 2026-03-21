@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Cpu, Layers, Sliders, Zap, Eye,
   Camera, FileImage, Settings, Monitor, Code, GitBranch, Film, Database,
@@ -22,7 +22,7 @@ interface SectionProps {
 }
 
 const Section: React.FC<SectionProps> = ({ id, number, icon, accentColor, gradientFrom, title, subtitle, children }) => (
-  <div id={id} className="border-t border-gray-800/60 pt-14 pb-6">
+  <div id={id} className="scroll-mt-20 border-t border-gray-800/60 pt-14 pb-6">
     <div className="flex items-start gap-4 mb-8">
       <div className={`flex-shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center ${accentColor} shadow-lg`}>
         {icon}
@@ -364,6 +364,16 @@ const FormatComparisonTable: React.FC = () => (
 
 const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash.slice(1);
+    if (!hash) return;
+    const t = setTimeout(() => {
+      document.getElementById(hash)?.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [location.hash]);
   const tocItems = [
     { id: 'demosaic',   label: '01. RAW Demosaic' },
     { id: 'pipeline',   label: '02. Color Pipeline' },

@@ -60,24 +60,17 @@ const SdrConstraintDiagram: React.FC = () => {
 
           {/* Files */}
           <motion.div {...fadeUp(0.1)} className="rounded-xl bg-gray-900 border border-gray-700/60 overflow-hidden">
-            {[
-              { icon: '📄', name: 'photo.jpg',  tags: ['color_space: sRGB', 'bit_depth: 8'] },
-              { icon: '🖼', name: 'photo.png',  tags: ['color_space: sRGB', 'bit_depth: 8–16'] },
-              { icon: '🗂', name: 'photo.tiff', tags: ['color_space: sRGB / AdobeRGB', 'bit_depth: 16'] },
-            ].map((f, i) => (
-              <div key={i} className={`px-4 py-3 space-y-1.5 ${i < 2 ? 'border-b border-gray-800' : ''}`}>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400 text-sm">{f.icon}</span>
-                  <span className="text-xs font-mono text-gray-300">{f.name}</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {f.tags.map((t, j) => (
-                    <span key={j} className="px-2 py-0.5 rounded text-[10px] font-mono bg-gray-800 border border-gray-700 text-gray-400">{t}</span>
-                  ))}
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-red-500/10 border border-red-500/30 text-red-400">HDR metadata: none</span>
-                </div>
+            <div className="px-4 py-3 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400 text-sm">📄</span>
+                <span className="text-xs font-mono text-gray-300">JPEG · PNG · TIFF</span>
               </div>
-            ))}
+              <div className="flex flex-wrap gap-1.5">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-gray-800 border border-gray-700 text-gray-400">color_space: sRGB / AdobeRGB</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-gray-800 border border-gray-700 text-gray-400">bit_depth: 8–16</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-red-500/10 border border-red-500/30 text-red-400">HDR metadata: none</span>
+              </div>
+            </div>
             <div className="px-4 py-2.5 bg-gray-800/40 border-t border-gray-800">
               <span className="text-[10px] text-amber-400/80 font-mono">⚠ 16-bit precision ≠ HDR — no HLG transfer function</span>
             </div>

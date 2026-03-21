@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GitBranch } from 'lucide-react';
 
 const ComparisonSection: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-24 px-4 bg-gray-950">
       <div className="max-w-6xl mx-auto">
@@ -31,6 +33,12 @@ const ComparisonSection: React.FC = () => {
                   <div>
                     <h4 className="font-semibold text-gray-300">Capture 3+ Bracketed RAWs</h4>
                     <p className="text-sm text-gray-500">Requires a tripod. Even 1/1000s between frames causes ghosting on any moving subject.</p>
+                    <button
+                      onClick={() => navigate('/education-guide#raw-vs-camera')}
+                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-medium hover:bg-blue-500/20 hover:border-blue-500/40 transition-colors"
+                    >
+                      Why single RAW is enough →
+                    </button>
                   </div>
                 </li>
                 <li className="flex gap-4">

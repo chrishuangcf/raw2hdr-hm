@@ -1,11 +1,10 @@
 import React from 'react';
 import { Routes, Route, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Layers, Aperture, Share2, Eye, Zap, Image as ImageIcon, Sliders, ShieldCheck, FileCode, Monitor, Palette, BookOpen, ArrowRight } from 'lucide-react';
+import { Layers, Aperture, Share2, Eye, Zap, Sliders, ShieldCheck, FileCode, Monitor, Palette, BookOpen, ArrowRight } from 'lucide-react';
 import Hero from './components/Hero';
 import HdrDemo from './components/HdrDemo';
 import HdrSlider from './components/HdrSlider';
-import { FeatureCard } from './components/FeatureCard';
 import ThreeHistogram from './components/ThreeHistogram';
 import BitDepthVisualizer from './components/BitDepthVisualizer';
 import GamutGraph from './components/GamutGraph';
@@ -33,6 +32,76 @@ const HomePage: React.FC = () => {
          </div>
       </section>
 
+      {/* HDR Scene Suitability Disclaimer */}
+      <section className="max-w-7xl mx-auto px-6 pb-16 -mt-4 relative z-20">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="rounded-2xl border border-amber-500/25 bg-amber-500/5 p-6 md:p-8 space-y-6"
+        >
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <Zap className="w-3 h-3 text-amber-400" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-sm font-bold text-amber-300 uppercase tracking-widest">When HDR shines — and when it doesn't</h3>
+                <button
+                  onClick={() => navigate('/education-guide#what-is-hdr')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
+                >
+                  <BookOpen className="w-3 h-3" /> Understanding HDR →
+                </button>
+              </div>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                HDR amplifies luminance contrast. It makes things that are already bright appear to <em>emit</em> light. That strength is also its limitation — results depend heavily on your scene.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* Works great */}
+            <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-5 space-y-3">
+              <div className="text-xs font-mono text-emerald-400 uppercase tracking-widest">Works best for</div>
+              <ul className="space-y-2 text-sm text-gray-300">
+                {[
+                  { label: 'Landscapes & sunsets', detail: 'Extreme highlights in the sky get detail and glow that SDR clips entirely.' },
+                  { label: 'Cityscapes at night', detail: 'Street lights, neon signs, and windows genuinely pop above the dark surroundings.' },
+                  { label: 'Architecture with dramatic lighting', detail: 'Hard shadows alongside bright surfaces — the range between them is what HDR excels at.' },
+                  { label: 'Scenes with real light sources', detail: 'If the frame contains a sun, lamp, flame, or any actual luminous object, HDR lets it glow rather than clip.' },
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                    <span><span className="font-semibold text-emerald-300">{item.label}</span> — {item.detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Use with care */}
+            <div className="rounded-xl bg-rose-500/5 border border-rose-500/20 p-5 space-y-3">
+              <div className="text-xs font-mono text-rose-400 uppercase tracking-widest">Use with care</div>
+              <ul className="space-y-2 text-sm text-gray-300">
+                {[
+                  { label: 'Portraits', detail: 'Human skin does not emit light. Boosting luminance on faces can look unnatural, over-illuminated, or plastic.' },
+                  { label: 'Flat / overcast scenes', detail: 'Without a wide contrast range to begin with, HDR has little headroom to expand — the result looks identical to SDR.' },
+                  { label: 'Studio product shots', detail: 'Controlled flat lighting leaves no highlights to recover, so the HDR layer adds nothing meaningful.' },
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="mt-1 w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0" />
+                    <span><span className="font-semibold text-rose-300">{item.label}</span> — {item.detail}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-gray-500 pt-1 leading-relaxed">
+                The core principle: HDR's impact is proportional to the contrast already present in the scene. The more light sources and shadow depth your photo has, the more dramatic the difference.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
       {/* NEW EDUCATION SECTIONS START HERE */}
 
       {/* 2. The 3D Histogram - Dynamic Range Visualization */}
@@ -50,20 +119,30 @@ const HomePage: React.FC = () => {
           <p className="text-gray-400 text-lg leading-relaxed">
             These particles represent the distribution of light in an image. In SDR, the "cloud" is squashed — anything brighter than 100 nits is lost. In HDR, the cloud expands vertically, preserving the intense highlights of the real world.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 flex-1">
-              <div className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
-              <div className="text-sm text-gray-400"><span className="text-white font-bold">SDR:</span> Clipped at 100 nits. Highlights look like flat white patches.</div>
-            </div>
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 flex-1">
-              <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
-              <div className="text-sm text-gray-400"><span className="text-blue-400 font-bold">HDR:</span> Reaches 1000+ nits. Highlights glow with color and detail.</div>
-            </div>
+          <div className="pt-1">
+            <button
+              onClick={() => navigate('/education-guide#dynamic-range')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-medium hover:bg-emerald-500/20 hover:border-emerald-500/40 transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" /> Dynamic range explained →
+            </button>
           </div>
         </motion.div>
         <div className="grid sm:grid-cols-2 gap-6">
-          <ThreeHistogram mode="SDR" />
-          <ThreeHistogram mode="HDR" />
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3 px-1">
+              <div className="w-2 h-2 rounded-full bg-white flex-shrink-0" />
+              <div className="text-sm text-gray-400"><span className="text-white font-bold">SDR:</span> Clipped at 100 nits. Highlights look like flat white patches.</div>
+            </div>
+            <ThreeHistogram mode="SDR" />
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3 px-1">
+              <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
+              <div className="text-sm text-gray-400"><span className="text-blue-400 font-bold">HDR:</span> Reaches 1000+ nits. Highlights glow with color and detail.</div>
+            </div>
+            <ThreeHistogram mode="HDR" />
+          </div>
         </div>
       </section>
 
@@ -82,12 +161,9 @@ const HomePage: React.FC = () => {
                 <BitDepthVisualizer bits={8} />
                 <BitDepthVisualizer bits={10} />
               </div>
-
-              <p className="text-gray-400 leading-relaxed">
-                Bit depth determines the precision of color steps. 8-bit only provides 256 steps per channel, leading to visible banding in gradients. 10-bit HDR provides 1,024 steps, creating the seamless, lifelike transitions required for true realism.
-              </p>
             </div>
-            <div className="flex flex-col justify-center space-y-4">
+            <div className="flex flex-col justify-between space-y-4">
+               <div className="space-y-4">
                <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-sm group hover:border-blue-500/30 transition-colors">
                   <h4 className="font-bold mb-2 flex items-center gap-2">
                     <FileCode className="w-4 h-4 text-blue-400" /> 16-bit RAW Processing
@@ -103,6 +179,26 @@ const HomePage: React.FC = () => {
                   <p className="text-sm text-gray-500">
                     Output uses the HLG (Hybrid Log-Gamma) transfer function with Rec.2020 colour space — the same HDR standard used by broadcast TV and modern Apple devices. One file, every screen.
                   </p>
+               </div>
+               </div>
+               <div className="space-y-4">
+                <p className="text-gray-400 leading-relaxed text-sm">
+                  Bit depth determines the precision of color steps. 8-bit only provides 256 steps per channel, leading to visible banding in gradients. 10-bit HDR provides 1,024 steps, creating the seamless, lifelike transitions required for true realism.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => navigate('/education-guide#bit-depth')}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/10 border border-purple-500/25 text-purple-400 text-xs font-medium hover:bg-purple-500/20 hover:border-purple-500/40 transition-colors"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" /> Bit depth explained →
+                  </button>
+                  <button
+                    onClick={() => navigate('/technical-deep-dive#pipeline')}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
+                  >
+                    <FileCode className="w-3.5 h-3.5" /> 16-bit colour pipeline →
+                  </button>
+                </div>
                </div>
             </div>
           </div>
@@ -125,6 +221,20 @@ const HomePage: React.FC = () => {
             <p className="text-gray-400 text-lg leading-relaxed">
               Traditional HDR (Tone Mapping) compresses brightness to fit SDR limits, often looking "flat" or "fake". True HDR allows shadows to stay dark and highlights to truly glow. This stronger contrast reflects real-world lighting more accurately.
             </p>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => navigate('/education-guide#traditional-hdr')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-medium hover:bg-orange-500/20 hover:border-orange-500/40 transition-colors"
+              >
+                <BookOpen className="w-3.5 h-3.5" /> Traditional HDR explained →
+              </button>
+              <button
+                onClick={() => navigate('/education-guide#true-hdr')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
+              >
+                <BookOpen className="w-3.5 h-3.5" /> True HDR realism →
+              </button>
+            </div>
             <div className="space-y-3">
               <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
                 <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Traditional HDR (Tone Mapped)</div>
@@ -162,6 +272,20 @@ const HomePage: React.FC = () => {
             <p className="text-gray-400 text-lg leading-relaxed">
               Colour spaces define the palette an image can contain. raw2hdr transforms your RAW's colour data all the way to <strong className="text-white">Rec.2020</strong> (BT.2020) — the wide-gamut standard used in HDR broadcast. Those are the vivid reds, neon blues, and saturated greens your sensor captured but JPEG discards.
             </p>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => navigate('/education-guide#color-spaces')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs font-medium hover:bg-rose-500/20 hover:border-rose-500/40 transition-colors"
+              >
+                <BookOpen className="w-3.5 h-3.5" /> Colour spaces explained →
+              </button>
+              <button
+                onClick={() => navigate('/technical-deep-dive#pipeline')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
+              >
+                <FileCode className="w-3.5 h-3.5" /> Rec.2020 colour pipeline →
+              </button>
+            </div>
             <div className="grid grid-cols-1 gap-3">
               {[
                 { name: 'sRGB', desc: 'Covers ~35% of visible colour. The standard for JPEG and the web — vivid colours are mapped down or clipped.', color: 'bg-red-500' },
@@ -201,6 +325,20 @@ const HomePage: React.FC = () => {
               <p className="text-gray-400 text-lg leading-relaxed">
                 raw2hdr outputs HEIC encoded with <strong className="text-white">BT.2100 HLG</strong> (Hybrid Log-Gamma) — the broadcast HDR standard. HLG's clever curve design means the same file looks correct on SDR screens and stunning on HDR screens, with no conversion or separate export needed.
               </p>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => navigate('/education-guide#heic-technology')}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-medium hover:bg-blue-500/20 hover:border-blue-500/40 transition-colors"
+                >
+                  <BookOpen className="w-3.5 h-3.5" /> HDR HEIC format explained →
+                </button>
+                <button
+                  onClick={() => navigate('/technical-deep-dive#hlg')}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <FileCode className="w-3.5 h-3.5" /> HLG encoding deep dive →
+                </button>
+              </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
                   <div className="mt-1 p-1 rounded bg-white/10 text-white"><ShieldCheck className="w-4 h-4" /></div>
@@ -264,6 +402,20 @@ const HomePage: React.FC = () => {
           <p className="text-gray-400 text-lg leading-relaxed">
             JPEG was designed for CRT monitors from the 1990s. It has hard technical limits baked in that make modern photos look less vivid than the moment you actually captured. 10-bit HDR removes every one of those limits.
           </p>
+          <div className="flex flex-wrap gap-3 pt-1">
+            <button
+              onClick={() => navigate('/education-guide#sdr-vs-hdr')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-xs font-medium hover:bg-cyan-500/20 hover:border-cyan-500/40 transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" /> SDR vs HDR explained →
+            </button>
+            <button
+              onClick={() => navigate('/technical-deep-dive#tiff')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <FileCode className="w-3.5 h-3.5" /> Why TIFF & DNG still fall short →
+            </button>
+          </div>
         </div>
 
         {/* Full-width OS decision diagram */}
@@ -329,19 +481,6 @@ const HomePage: React.FC = () => {
           ))}
         </div>
 
-        {/* App-specific features (no SDR counterpart) */}
-        <div className="grid sm:grid-cols-2 gap-6">
-          <FeatureCard
-            title="Film Looks in HDR (Pro)"
-            description="50+ curated LUTs — Fujifilm ACROS, Velvia, Panasonic Teal Orange, classic Kodak Portra and more — combined with HDR output. You get the analogue feel and the full tonal range."
-            icon={<Layers className="w-6 h-6" />}
-          />
-          <FeatureCard
-            title="Frame Designs"
-            description="Film strip, EXIF card, journal with live weather and GPS, colour palette swatches — fully customisable borders that make HDR content appear to emit light on a wall."
-            icon={<ImageIcon className="w-6 h-6" />}
-          />
-        </div>
 
       </section>
 

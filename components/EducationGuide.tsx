@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronUp, BookOpen, Monitor, Layers, Sliders, Palette, Zap, Eye, Camera, FileImage, Cpu, Settings } from 'lucide-react';
 
 interface SectionProps {
@@ -79,6 +79,18 @@ const CompareRow: React.FC<{ label: string; sdr: string; hdr: string }> = ({ lab
 
 const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash.slice(1);
+    if (!hash) return;
+    // Delay to let the full page render before jumping
+    const t = setTimeout(() => {
+      const el = document.getElementById(hash);
+      if (el) el.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [location.hash]);
   const tocItems = [
     { id: 'what-is-hdr', label: 'Understanding HDR' },
     { id: 'dynamic-range', label: 'Dynamic Range' },
@@ -153,7 +165,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 1 ── */}
-          <div id="what-is-hdr">
+          <div id="what-is-hdr" className="scroll-mt-20">
             <Section
               number="01"
               icon={<Eye className="w-5 h-5 text-sky-400" />}
@@ -191,7 +203,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 2 ── */}
-          <div id="dynamic-range">
+          <div id="dynamic-range" className="scroll-mt-20">
             <Section
               number="02"
               icon={<Monitor className="w-5 h-5 text-emerald-400" />}
@@ -230,7 +242,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 3 ── */}
-          <div id="sdr-vs-hdr">
+          <div id="sdr-vs-hdr" className="scroll-mt-20">
             <Section
               number="03"
               icon={<Monitor className="w-5 h-5 text-violet-400" />}
@@ -275,7 +287,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 4 ── */}
-          <div id="bit-depth">
+          <div id="bit-depth" className="scroll-mt-20">
             <Section
               number="04"
               icon={<Sliders className="w-5 h-5 text-blue-400" />}
@@ -319,7 +331,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 5 ── */}
-          <div id="traditional-hdr">
+          <div id="traditional-hdr" className="scroll-mt-20">
             <Section
               number="05"
               icon={<Camera className="w-5 h-5 text-orange-400" />}
@@ -363,7 +375,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 6 ── */}
-          <div id="true-hdr">
+          <div id="true-hdr" className="scroll-mt-20">
             <Section
               number="06"
               icon={<Zap className="w-5 h-5 text-yellow-400" />}
@@ -408,7 +420,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 7 ── */}
-          <div id="color-spaces">
+          <div id="color-spaces" className="scroll-mt-20">
             <Section
               number="07"
               icon={<Palette className="w-5 h-5 text-rose-400" />}
@@ -461,7 +473,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 8 ── */}
-          <div id="heic-technology">
+          <div id="heic-technology" className="scroll-mt-20">
             <Section
               number="08"
               icon={<FileImage className="w-5 h-5 text-cyan-400" />}
@@ -510,7 +522,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 9 ── */}
-          <div id="raw-workflow">
+          <div id="raw-workflow" className="scroll-mt-20">
             <Section
               number="09"
               icon={<Cpu className="w-5 h-5 text-indigo-400" />}
@@ -563,7 +575,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 10 ── */}
-          <div id="raw-vs-camera">
+          <div id="raw-vs-camera" className="scroll-mt-20">
             <Section
               number="10"
               icon={<Camera className="w-5 h-5 text-amber-400" />}
@@ -621,7 +633,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
           </div>
 
           {/* ── Section 11 ── */}
-          <div id="app-features">
+          <div id="app-features" className="scroll-mt-20">
             <Section
               number="11"
               icon={<Settings className="w-5 h-5 text-teal-400" />}
