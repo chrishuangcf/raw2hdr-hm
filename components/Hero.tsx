@@ -46,12 +46,15 @@ const Hero: React.FC = () => {
               Download on the App Store
             </Button>
           </a>
-          <a href="#visualization">
-            <Button variant="outline" size="lg" className="group">
-              How it Works
-              <ChevronRight className="ml-1 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </a>
+          <Button
+            variant="outline"
+            size="lg"
+            className="group"
+            onClick={() => document.getElementById('visualization')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          >
+            How it Works
+            <ChevronRight className="ml-1 h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </Button>
         </div>
 
         <p className="text-xs text-gray-600">iOS 14.0+ · One-time purchase · No subscription</p>
