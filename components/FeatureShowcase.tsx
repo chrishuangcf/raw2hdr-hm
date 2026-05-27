@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sliders, Aperture, Film, Crosshair, Layout, Layers, ScanLine, Wand2 } from 'lucide-react';
+import { Sliders, Aperture, Film, Crosshair, Layout, Layers, ScanLine, Wand2, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const features = [
   {
@@ -29,7 +30,7 @@ const features = [
   },
   {
     title: "Frame Designs",
-    description: "8 customisable overlays — EXIF card, film strip with sprocket holes, journal with live weather & GPS, palette with dominant colour swatches, and more.",
+    description: "Seven layouts — borderless EXIF bar, classic border, split metadata, journal with weather & GPS, palette swatches (two variants), and gradient EXIF overlay — all composited in HDR space.",
     icon: <Layout />,
     color: "rose",
   },
@@ -79,6 +80,12 @@ const FeatureShowcase: React.FC = () => {
             <p className="text-gray-400 text-lg leading-relaxed max-w-xl">
               Every feature is built around Apple's RAW engine and the expanded dynamic range of modern iPhone, iPad, and Apple TV displays.
             </p>
+            <Link
+              to="/raw2hdr"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-medium hover:bg-amber-500/20 hover:border-amber-500/40 transition-colors"
+            >
+              <Aperture className="w-3.5 h-3.5" /> About raw2hdr — features in depth <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
         </div>
 

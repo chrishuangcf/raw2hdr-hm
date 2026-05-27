@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from './Button';
 import { Download, ChevronRight } from 'lucide-react';
 
@@ -15,7 +16,7 @@ const Hero: React.FC = () => {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
           </span>
-          v0.1.8 · Now Available on the App Store
+          v0.2.2 · Now Available on the App Store
         </div>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-white leading-tight">
@@ -32,11 +33,22 @@ const Hero: React.FC = () => {
 
         <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-400">
           <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Fujifilm</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Nikon</span>
           <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Sony</span>
           <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Canon</span>
           <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Panasonic</span>
           <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Leica</span>
           <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Olympus</span>
+        </div>
+
+        <div className="flex justify-center">
+          <Link
+            to="/raw-compatibility"
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            RAW format compatibility chart
+            <ChevronRight className="w-4 h-4" />
+          </Link>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
@@ -57,7 +69,7 @@ const Hero: React.FC = () => {
           </Button>
         </div>
 
-        <p className="text-xs text-gray-600">iOS 14.0+ · One-time purchase · No subscription</p>
+        <p className="text-xs text-gray-600">iOS 26+ · One-time purchase · No subscription</p>
       </div>
     </section>
   );

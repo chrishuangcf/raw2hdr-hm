@@ -891,7 +891,7 @@ The result: the output HEIC file is a fully valid BT.2100 HLG HDR image that inc
 
 ### Why This Matters Perceptually
 
-On an HDR display, the visual consequence is that the entire framed output — image and decorative elements together — is a coherent HDR composition. A white border appears at the HDR reference white level, not at a sRGB 255 value that might accidentally appear as a different luminance relative to the image content. Text has the same perceptual brightness relationship to the image as the designer intended. A film strip frame's sprocket holes and edge markings are rendered at HDR precision, matching the photographic grain and tone of the bordered image.
+On an HDR display, the visual consequence is that the entire framed output — image and decorative elements together — is a coherent HDR composition. A white border appears at the HDR reference white level, not at a sRGB 255 value that might accidentally appear as a different luminance relative to the image content. Text has the same perceptual brightness relationship to the image as the designer intended. Borders, typography, EXIF rows, and palette swatches are rendered at HDR precision alongside the photograph.
 
 On an SDR display, everything looks exactly like a standard photograph with a standard frame. HLG's backward compatibility ensures that the 8-bit pathway is not "degraded HDR" — it is genuinely correct SDR rendering of the HLG signal.
 
@@ -950,13 +950,13 @@ Every subsequent operation — adding text, compositing a logo, drawing frame el
 
 raw2hdr solves this by performing all frame compositing in the native processing layer, in the same floating-point HDR context that holds the processed photograph (as described architecturally in Section 9). The compositing context is configured for 16-bit half-float precision and the BT.2100 HLG color space from the moment it is created, and it remains in that state through every compositing operation until the final HEIC encode.
 
-This means that adding a border, rendering metadata text, compositing a camera logo, drawing film strip sprocket holes, sampling color swatches from the image — all of these operations happen in the HDR signal space. Border fills are specified as HLG signal values, not as sRGB byte values. Text anti-aliasing blends at float precision against the HDR background. Logo transparency composites without any signal space conversion. The output is a single coherent HEIC file where the photograph, the border, and all decorative elements are unified in one HDR-native composition.
+This means that adding a border, rendering metadata text, compositing a camera logo, drawing gradient EXIF overlays, sampling color swatches from the image — all of these operations happen in the HDR signal space. Border fills are specified as HLG signal values, not as sRGB byte values. Text anti-aliasing blends at float precision against the HDR background. Logo transparency composites without any signal space conversion. The output is a single coherent HEIC file where the photograph, the border, and all decorative elements are unified in one HDR-native composition.
 
 ### What the Frame System Provides
 
-Eight compositional frame layouts are offered, ranging from borderless watermark overlays to asymmetric wide borders with metadata panels to film strip emulations with sprocket hole graphics. The designs vary in how they allocate space between photographic content and decorative frame elements, and in what metadata they surface — camera and lens identification, exposure parameters, GPS and temporal stamps, color palette swatches sampled from the image content itself.
+Seven compositional frame layouts are offered — borderless bottom-bar watermark, classic bordered caption, split maker/EXIF, journal with weather and GPS, two palette variants with dominant-colour swatches, and an inside-image EXIF overlay with optional custom title. The designs vary in how they allocate space between photographic content and decorative frame elements, and in what metadata they surface — camera and lens identification, exposure parameters, GPS and temporal stamps, color palette swatches sampled from the image content itself.
 
-All eight designs share the same architecture: they are described once as native compositing operations and rendered once into the HDR context. None of them route through the standard 8-bit graphics system at any point. The choice of how much border to add, what text to display, or which layout to use has no effect on the HDR fidelity of the output.
+All designs share the same architecture: they are described once as native compositing operations and rendered once into the HDR context. None of them route through the standard 8-bit graphics system at any point. The choice of how much border to add, what text to display, or which layout to use has no effect on the HDR fidelity of the output.
 
 ### Custom Typography Without HDR Compromise
 
@@ -974,50 +974,53 @@ Every metadata field displayed in frame designs has a user-configurable text ove
 
 ## 13. LUT Thumbnail Cache Architecture
 
-Generating visual preview thumbnails for 60+ LUT profiles from a RAW file would take an unacceptably long time if each LUT required an independent full RAW decode. At even reduced-scale processing, a full pipeline run from RAW decode through LUT application takes on the order of 1–3 seconds on a current iPhone. 60 LUTs × 3 seconds = 3 minutes of waiting before the user can evaluate any film simulation options. The thumbnail cache architecture is designed specifically to eliminate this bottleneck.
+The Film Simulation / LUT picker needs a **neutral “none”** reference plus a **small preview per LUT** for every catalogue profile. Doing a **full-resolution RAW decode + full pipeline per LUT** would be far too slow. The current implementation (`lib/services/lut_thumbnail_service.dart`) splits work into a **persistent import-tier disk cache** and, where possible, a **single native linear-RGB decode reused for many LUT applications** on the **strip** tier only.
 
-### The Single-Decode Strategy
+### Import-tier disk cache (per RAW basename)
 
-The foundational insight is that all LUT previews for a given RAW image share exactly the same input: the neutral linear RGB decode of that RAW at reduced resolution. The decode step does not care which LUT will be applied; its output is identical regardless. Therefore, the decode should happen exactly once, and the resulting buffer should be held in memory and reused across all subsequent LUT applications.
+Under the app’s **Application Support** directory: `lut_cache/<RAW_basename>/`.
 
-The system performs one RAW decode at 25% scale (one-quarter dimensions in each direction, one-sixteenth total pixels) and stores the resulting linear half-float buffer in native memory, referenced by an integer handle. Every LUT preview generation for that image reads from this cached buffer. The expensive portion of the pipeline — sensor demosaic, color matrix application, white balance neutralization — runs once. The fast portion — log encode, LUT lookup, post-LUT processing — runs once per LUT.
+| Artifact | Role | How it is produced |
+|----------|------|---------------------|
+| **`none.jpg`** | Unadjusted SDR baseline shown when LUT = None | Native `processImage` at **`importNonePreviewScale` = 1.0** (full decode width/height), copied into the cache. A sibling **`none.scale`** marker records the scale so a change in constants can invalidate stale files. |
+| **`strip_<lutId>.jpg`** | Tiny horizontal-strip tile in the LUT carousel | Built at **`importStripLutScale` = 0.06** (6% linear dimension vs full RAW). |
 
-```
-Without caching (naive):
-  LUT 1: [RAW decode (3s)] + [LUT apply (0.3s)] = 3.3s
-  LUT 2: [RAW decode (3s)] + [LUT apply (0.3s)] = 3.3s
-  LUT 3: [RAW decode (3s)] + [LUT apply (0.3s)] = 3.3s
-  ...
-  60 LUTs × 3.3s = ~3.3 minutes total
+Optional **`<lutId>.skip`** files mark LUTs whose cube asset failed to copy — they still count as “complete” for progress so the grid does not block forever.
 
-With linear cache:
-  Initial: [RAW decode once (3s)] → cache handle
-  LUT 1:  [cache read + LUT apply (0.3s)]
-  LUT 2:  [cache read + LUT apply (0.3s)]
-  LUT 3:  [cache read + LUT apply (0.3s)]
-  ...
-  3s + (60 × 0.3s) = ~21 seconds total — 9× faster
-```
+**Catalogue list:** Thumbnails are generated for profiles from **`LutCatalogService.instance.resolvedProfiles`** when non-empty, else **`LutProfile.allProfiles`**. The Settings toggle **“Classic film stock previews”** (`show_film_stock_thumbnails`, default **on**) filters out colour/B&W **film stock** profiles when off so fewer strips are generated and less disk is used.
 
-The exposure metering analysis (Section 4) also reads from the same cached buffer, so the EV value used to normalize all 60 thumbnails is computed from the same data without any additional decode overhead.
+### Strip tier: single linear decode, many LUT applies
 
-### Two-Level Persistence
+For each pending `strip_<id>` batch, the service:
 
-The cache operates at two levels:
+1. Copies each LUT asset to temp (with optional `#InputGamma` header prefix matching the profile).
+2. Calls **`cacheLinearRgb`** once at **`importStripLutScale` (0.06)** → native **integer handle** to a linear half-float buffer.
+3. Loops **`applyLutCached`** per LUT, writing scratch JPEGs, then copies winners to **`strip_<id>.jpg`**.
+4. Calls **`freeCachedLinearRgb`** on the handle in a `finally` block.
 
-**In-memory cache:** Generated thumbnail images — rendered to PNG at approximately 750px maximum dimension — are held in a keyed in-memory store indexed by RAW file basename and LUT identifier. A cache hit here is instantaneous: the thumbnail bytes are already in RAM and are handed directly to the display layer without any I/O or processing.
+If `cacheLinearRgb` fails, the code **falls back** to **`processImage` per LUT** at the same 0.06 scale (slower but still small output).
 
-**On-disk cache:** Generated thumbnails are also written to the application's temporary directory in a folder hierarchy organized by RAW file basename. A disk cache hit requires a file read (fast, typically under 10ms for a 750px PNG) but avoids any processing. Disk cache entries persist across app launches and across sessions, meaning thumbnails generated in a previous session are immediately available the next time the same RAW is opened.
+So the “decode once, apply many LUTs” optimisation applies to **strip generation**, not to **`none.jpg`** (which intentionally uses a separate full-scale `processImage` path for the neutral reference).
 
-When the user explicitly requests cache regeneration — after a LUT pack update, or after changing the processing parameters for a specific RAW — both cache levels are cleared and the full generation cycle runs again from the linear decode.
+### Concurrency and scheduling
 
-### Thumbnail Quality and Sizing
+All queued native work (`generateAllThumbnails`, `generateBrandThumbnails`, `ensureNonePreviewForEditor`) chains on a **single Dart `Future` queue** (`_nativeQueue`) so **only one** heavy native RAW pipeline runs at a time — this avoids overlapping C-level processing on the same heap.
 
-The 750px maximum dimension target was chosen to satisfy three competing constraints simultaneously:
+**Manifest backfill:** `ensureThumbnailsFromManifest()` walks the RAW library manifest and calls `generateAllThumbnails` for any file that fails `isImportTierCacheComplete`. **Bulk file count** tracking defers LRU eviction until a multi-file batch finishes so one RAW’s cache is not deleted mid-pass under a tight budget.
 
-- **Visual fidelity:** 750px is large enough that the LUT's characteristic color rendering, highlight treatment, shadow density, and tonal contrast are clearly visible in the selection grid at 3× retina screen density. A smaller target would make fine differences between similar LUTs indistinguishable.
-- **Memory efficiency:** At 750×500 pixels with 4 bytes per pixel as PNG, each thumbnail occupies roughly 300KB in memory. 60 thumbnails for a single RAW image require approximately 18MB — well within the memory budget of current devices without triggering pressure.
-- **Retina alignment:** 750px corresponds to 250 logical points at 3× display scale — matching the standard iPhone screen width in landscape for current Pro models — so the thumbnails can be displayed at native resolution without upsampling.
+### LRU, budget, and schema migration
+
+- User **max cache MB** and **auto-purge** prefs control **`evictIfOverBudget()`**, which deletes oldest per-RAW folders under `lut_cache` / legacy `lut_cache_ae` until usage is under budget.
+- **`lutCacheDiskSchemaVersion`** (currently **2**): on upgrade, `ensureDiskCacheSchemaMigrated()` in `main()` may **`nukeCache()`** once so on-disk layout stays consistent.
+
+### Editor vs import tier
+
+- **Disk import tier** = `none.jpg` + `strip_*.jpg` (and `.skip`) for the **carousel**.
+- **Editor develop preview** uses a **different** scale (`preview_scale` in SharedPreferences, 25–100%) and **`cacheLinearRgb` + unified `renderPreview`** — that path is **not** the same files as `lut_cache` strips; see editor preview docs elsewhere.
+
+### In-memory use in the editor
+
+When the editor opens a RAW, it may load **`none`** bytes into **`_lutThumbnails['none']`** and use **on-disk paths** for strips (`Image.file`) so the grid does not hold every JPEG in RAM at once. Selecting a LUT still triggers a **full** `_renderEditorPreview()` for the main canvas.
 
 ---
 
@@ -1142,6 +1145,6 @@ This principle cascades into consequences at every level:
 
 **Because exposure metering mirrors physical center-weighted camera metering** — LUT previews are calibrated to a consistent exposure reference, making 60+ thumbnails visually comparable on a single grid.
 
-**Because the thumbnail cache decodes the RAW once and reuses the buffer** — the full set of LUT previews is generated in the time it would naively take to run a single full pipeline, maintaining responsiveness as a first-class feature.
+**Because strip-tier LUT thumbnails share one low-scale linear decode** — many `strip_<lutId>.jpg` files are produced from a single `cacheLinearRgb` pass at 6% scale, with per-LUT `applyLutCached` work only, instead of repeating a full RAW decode for every LUT.
 
 The result is an application where any RAW file from any supported camera can be processed with any supported LUT from any manufacturer, decorated with HDR-native creative effects and frame designs, and exported as a self-contained HDR HEIC image — with no stage in the pipeline knowing or caring about camera brand, and with no stage compromising the dynamic range the RAW sensor originally captured.

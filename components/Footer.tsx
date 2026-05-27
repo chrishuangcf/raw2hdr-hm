@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Download, Shield, Smartphone, Camera } from 'lucide-react';
 import { Button } from './Button';
 
@@ -27,7 +28,7 @@ const Footer: React.FC<{ onPrivacyPolicyClick?: () => void }> = ({ onPrivacyPoli
              </Button>
           </div>
           <p className="text-sm text-gray-500 mt-4">
-             iOS 14.0+ · One-time purchase · No subscription · All processing on-device
+             iOS 26+ · One-time purchase · No subscription · All processing on-device
           </p>
         </div>
 
@@ -48,8 +49,14 @@ const Footer: React.FC<{ onPrivacyPolicyClick?: () => void }> = ({ onPrivacyPoli
               Supported RAW Formats
             </h4>
             <p className="text-sm text-gray-500">
-              Fujifilm (.RAF) · Canon (.CR2, .CR3) · Sony (.ARW) · Panasonic (.RW2) · Olympus/OM (.ORF) · Leica (.DNG) · Universal DNG
+              Fujifilm (.RAF) · Nikon (.NEF, .NRW) · Canon (.CR2, .CR3) · Sony (.ARW) · Panasonic (.RW2) · Olympus/OM (.ORF) · Leica (.DNG) · Universal DNG
             </p>
+            <Link
+              to="/raw-compatibility"
+              className="inline-block text-sm text-blue-400 hover:text-blue-300 transition-colors mt-2"
+            >
+              Full RAW compatibility chart →
+            </Link>
           </div>
 
           <div className="space-y-4">

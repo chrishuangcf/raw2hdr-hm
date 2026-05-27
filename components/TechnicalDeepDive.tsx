@@ -184,7 +184,7 @@ const LutCacheChart: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <div className="text-sm font-bold text-white">LUT Thumbnail Generation Time</div>
-          <div className="text-xs text-gray-500">60 LUT previews for a single RAW file</div>
+          <div className="text-xs text-gray-500">Illustrative: many strip LUTs vs repeated full decode each</div>
         </div>
         <div className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono font-bold">9x faster</div>
       </div>
@@ -921,32 +921,33 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
           {/* ─── 07 ─── */}
           <Section id="cache" number="07" icon={<Database className="w-5 h-5 text-emerald-400" />}
             accentColor="bg-emerald-500/10" gradientFrom="from-emerald-300"
-            title="LUT Thumbnail Cache Architecture" subtitle="Single-decode strategy — 9x faster than naive per-LUT decode">
-            <p>Without caching, 60 LUT previews at roughly 3.3 seconds per full decode would take over 3 minutes. The cache architecture reduces this to approximately 21 seconds.</p>
-            <p>The key insight: all LUT previews for a given RAW share the same input — the neutral linear RGB decode at reduced resolution. The decode runs once; the buffer is held in memory and reused across all 60+ LUT applications.</p>
+            title="LUT Thumbnail Cache Architecture" subtitle="One decode pass, every grade previewed instantly">
+            <p>
+              When you open the color grade strip, raw2hdr needs to show a live thumbnail of every available grade applied to your actual image — all at once, without a noticeable delay. To make that fast, the app decodes your RAW file once at a small preview scale and reuses that single decoded result to generate every grade thumbnail in sequence. The thumbnails are saved to disk so they persist between sessions and don't need to be regenerated each time you open the same file.
+            </p>
+            <p>
+              The "no grade" reference thumbnail is generated separately at a higher resolution so it serves as an accurate baseline for visual comparison, rather than a small-scale approximation.
+            </p>
             <LutCacheChart />
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">In-Memory Cache</div>
-                <p className="text-sm text-gray-400">Generated PNG thumbnails held keyed by RAW basename + LUT identifier. A cache hit is instantaneous — bytes already in RAM, no I/O or processing.</p>
+                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Memory</div>
+                <p className="text-sm text-gray-400">
+                  The grade strip loads thumbnail images directly from disk rather than holding every preview in memory simultaneously, keeping RAM usage low even when a large number of grades are available.
+                </p>
               </div>
               <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-2">
-                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">On-Disk Cache</div>
-                <p className="text-sm text-gray-400">Thumbnails written to the app temp directory organized by RAW basename. Persists across app launches. A disk hit requires only a file read (~10ms) with no processing.</p>
+                <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">On-disk cache</div>
+                <p className="text-sm text-gray-400">
+                  Cached thumbnails persist across app launches. The cache manages its own storage budget — when it grows beyond a set limit, the oldest unused entries are evicted automatically to keep device storage clean.
+                </p>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              <MetricCard value="25%" label="Decode scale" sub="1/16th total pixels" color="bg-emerald-500/5 border border-emerald-500/20" />
-              <MetricCard value="750px" label="Thumbnail max size" sub="Native at 3x retina 250pt" color="bg-blue-500/5 border border-blue-500/20" />
-              <MetricCard value="18 MB" label="Memory for 60 thumbs" sub="~300KB x 60 LUT previews" color="bg-violet-500/5 border border-violet-500/20" />
-            </div>
 
-            <DetailsPanel title="Thumbnail quality and sizing — three competing constraints" accent="border-emerald-500/20">
-              <p>The 750px maximum dimension target was chosen to satisfy three competing constraints simultaneously:</p>
-              <p><strong className="text-white">Visual fidelity:</strong> 750px is large enough that the LUT's characteristic colour rendering, highlight treatment, shadow density, and tonal contrast are clearly visible in the selection grid at 3× retina screen density. A smaller target would make fine differences between similar LUTs indistinguishable.</p>
-              <p><strong className="text-white">Memory efficiency:</strong> At 750×500 pixels with 4 bytes per pixel as PNG, each thumbnail occupies roughly 300KB in memory. 60 thumbnails for a single RAW image require approximately 18MB — well within the memory budget of current devices without triggering pressure.</p>
-              <p><strong className="text-white">Retina alignment:</strong> 750px corresponds to 250 logical points at 3× display scale — matching the standard iPhone screen width in landscape for current Pro models — so the thumbnails can be displayed at native resolution without upsampling.</p>
-              <p>The exposure metering analysis also reads from the same cached buffer, so the EV value used to normalise all 60 thumbnails is computed from the same data without any additional decode overhead. When the user explicitly requests cache regeneration — after a LUT pack update, or after changing processing parameters — both cache levels are cleared and the full generation cycle runs again from the linear decode.</p>
+            <DetailsPanel title="Reliability and batch generation" accent="border-emerald-500/20">
+              <p>
+                If a particular grade fails to generate a preview — due to a missing asset or a decode error — that slot is marked and skipped so the rest of the strip continues loading normally. When processing a batch of RAW files, thumbnail generation runs for all files before any cache cleanup occurs, avoiding unnecessary eviction of freshly built previews.
+              </p>
             </DetailsPanel>
           </Section>
 
@@ -1297,7 +1298,7 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
 
             <DetailsPanel title="Perceptual consequences on HDR displays" accent="border-pink-500/20">
-              <p>The entire framed output — image and decorative elements together — is a coherent HDR composition. A white border appears at HDR reference white, not at sRGB 255 mapped to a different luminance relative to the photograph beside it. Typography, sprocket holes, EXIF text, and colour swatches all carry the same HDR signal precision as the image pixels.</p>
+              <p>The entire framed output — image and decorative elements together — is a coherent HDR composition. A white border appears at HDR reference white, not at sRGB 255 mapped to a different luminance relative to the photograph beside it. Typography, borders, EXIF rows, and colour swatches all carry the same HDR signal precision as the image pixels.</p>
               <p>On an SDR display, everything renders identically to a standard photograph with a standard frame. HLG's backward compatibility means the SDR fallback is not degraded HDR — it is correct SDR.</p>
             </DetailsPanel>
           </Section>
@@ -1316,7 +1317,7 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
                 { title: 'Consistent across the tonal range', desc: 'Because effects are applied in HDR signal space, grain and texture behave evenly in shadows, midtones, and highlights — not coarser in the darks the way 8-bit application produces.', fx: true },
                 { title: 'Typography at float precision', desc: 'Character edges and sub-pixel antialiasing are preserved at full floating-point precision — no quantization at glyph boundaries.', fx: false },
                 { title: 'EXIF override system', desc: 'Every metadata field has a user-configurable text override — camera name, lens, custom title. Purely cosmetic, no effect on image data.', fx: false },
-                { title: 'Multiple frame layouts', desc: 'Borderless watermark, split EXIF, film strip with sprocket holes, journal with weather and GPS, palette with colour swatches, and more.', fx: false },
+                { title: 'Multiple frame layouts', desc: 'Borderless bottom bar, classic bordered caption, split maker/EXIF, journal with weather and GPS, palette swatches (two layout variants), and gradient EXIF overlay with custom title.', fx: false },
               ].map((item, i) => (
                 <div key={i} className={`p-4 rounded-xl space-y-1 ${item.fx ? 'bg-amber-500/5 border border-amber-500/15' : 'bg-rose-500/5 border border-rose-500/15'}`}>
                   <div className="text-sm font-bold text-white">{item.title}</div>

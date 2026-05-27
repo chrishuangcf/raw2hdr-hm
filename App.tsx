@@ -15,6 +15,8 @@ import Footer from './components/Footer';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import EducationGuide from './components/EducationGuide';
 import TechnicalDeepDive from './components/TechnicalDeepDive';
+import Raw2HdrSection from './components/Raw2HdrSection';
+import RawCompatibility from './components/RawCompatibility';
 import SdrConstraintDiagram from './components/SdrConstraintDiagram';
 
 const HomePage: React.FC = () => {
@@ -499,7 +501,7 @@ const HomePage: React.FC = () => {
         <div className="relative z-10 max-w-3xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Single RAW. Zero Loss.</h2>
           <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-            Your Fujifilm, Sony, or Canon sensor captures 12–14 bits of light data. raw2hdr
+            Your Fujifilm, Nikon, Sony, Canon, or Panasonic sensor captures 12–14 bits of light data. raw2hdr
             preserves every stop and exports true 10-bit BT.2100 HLG — directly on iPhone.
           </p>
           <a
@@ -510,7 +512,13 @@ const HomePage: React.FC = () => {
           >
             Download free on the App Store
           </a>
-          <p className="text-sm opacity-60 mt-4">iOS 14+ · One-time Pro purchase · No subscription</p>
+          <p className="text-sm opacity-60 mt-4">iOS 26+ · One-time Pro purchase · No subscription</p>
+          <Link
+            to="/raw-compatibility"
+            className="inline-flex items-center gap-1.5 mt-3 text-xs text-white/50 hover:text-white/80 transition-colors"
+          >
+            View RAW format compatibility chart <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
       </section>
 
@@ -626,6 +634,13 @@ const HomePage: React.FC = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
                 <Link
+                  to="/raw2hdr"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm transition-colors"
+                >
+                  About raw2hdr
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
                   to="/education-guide"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
                 >
@@ -653,9 +668,11 @@ const HomePage: React.FC = () => {
 const App: React.FC = () => (
   <Routes>
     <Route path="/" element={<HomePage />} />
+    <Route path="/raw2hdr" element={<Raw2HdrSection />} />
     <Route path="/education-guide" element={<EducationGuide onClose={() => null} />} />
     <Route path="/technical-deep-dive" element={<TechnicalDeepDive onClose={() => null} />} />
     <Route path="/privacy-policy" element={<PrivacyPolicy onClose={() => null} />} />
+    <Route path="/raw-compatibility" element={<RawCompatibility />} />
   </Routes>
 );
 

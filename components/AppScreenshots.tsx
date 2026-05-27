@@ -34,36 +34,54 @@ const screenshots = [
   },
   {
     id: 6,
+    title: "Noise Reduction",
+    alt: "ISO-aware noise reduction with loupe and edge-detection preview",
+    src: "/raw2hdr-hm/images/noise_reduction.png"
+  },
+  {
+    id: 7,
     title: "Film Simulation LUTs",
     alt: "50+ film simulation LUTs — Fujifilm, Panasonic, Leica, cinematic grades",
     src: "/raw2hdr-hm/images/lut_mode.png"
   },
   {
-    id: 7,
+    id: 8,
+    title: "My Styles",
+    alt: "My Styles — save, apply, and manage named editor adjustment presets",
+    src: "/raw2hdr-hm/images/my_styles.png"
+  },
+  {
+    id: 9,
+    title: "Filmic F/X",
+    alt: "Filmic F/X — light leak, film grain, lens flare, and black mist with drag-to-position controls in HDR",
+    src: "/raw2hdr-hm/images/filmic_fx.png"
+  },
+  {
+    id: 10,
     title: "Frame Designs",
-    alt: "8 customisable frame designs with EXIF data overlays",
+    alt: "Frame design presets — borderless, classic, split, journal, palette, and EXIF overlay layouts",
     src: "/raw2hdr-hm/images/frame_designs.png"
   },
   {
-    id: 8,
+    id: 11,
     title: "Frame Designs Gallery",
     alt: "Gallery of all available frame design options",
     src: "/raw2hdr-hm/images/frame_designs2.png"
   },
   {
-    id: 9,
+    id: 12,
     title: "Crop & Aspect Ratio",
     alt: "Crop tool with preset aspect ratios",
     src: "/raw2hdr-hm/images/crop_mode.png"
   },
   {
-    id: 10,
+    id: 13,
     title: "Diptych Composer",
     alt: "Side-by-side diptych layout for two photos",
     src: "/raw2hdr-hm/images/diptych_mode.png"
   },
   {
-    id: 11,
+    id: 14,
     title: "EXIF & Metadata",
     alt: "Full EXIF metadata display — camera, lens, aperture, ISO, GPS",
     src: "/raw2hdr-hm/images/exif_view.png"
@@ -124,18 +142,7 @@ const AppScreenshots: React.FC = () => {
               {/* Phone Bezel */}
               <div className="w-[240px] md:w-[280px] aspect-[9/19.5] rounded-[3rem] border-8 border-gray-800 bg-gray-950 shadow-2xl overflow-hidden relative transform transition-transform duration-500 hover:-translate-y-4 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
 
-                {/* Dynamic Island */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 h-7 w-28 bg-black rounded-b-3xl z-30 pointer-events-none" />
-
-                {/* Status bar */}
-                <div className="absolute top-1.5 left-8 text-[10px] font-bold text-white z-30 font-sans">9:41</div>
-                <div className="absolute top-2 right-7 flex gap-1 z-30">
-                  <div className="w-4 h-2.5 border border-white/40 rounded-[2px] relative">
-                    <div className="bg-white h-full w-[80%]" />
-                  </div>
-                </div>
-
-                {/* Screenshot */}
+                {/* Screenshot — no faux status bar / home indicator so captures show as in-app */}
                 <img
                   src={shot.src}
                   alt={shot.alt}
@@ -156,9 +163,6 @@ const AppScreenshots: React.FC = () => {
 
                 {/* Gloss */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-transparent pointer-events-none z-20 rounded-[2.5rem]" />
-
-                {/* Home indicator */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/20 rounded-full z-30" />
               </div>
 
               {/* Caption */}

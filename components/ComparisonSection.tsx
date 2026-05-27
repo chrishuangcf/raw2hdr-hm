@@ -73,7 +73,7 @@ const ComparisonSection: React.FC = () => {
                   <div className="flex-none w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center text-sm font-mono text-blue-300">1</div>
                   <div>
                     <h4 className="font-semibold text-blue-200">Single RAW — no bracketing</h4>
-                    <p className="text-sm text-gray-400">Apple's CIRAWFilter decodes your 12–14 bit sensor data natively. Fujifilm, Sony, Canon, Panasonic, Leica, and Olympus all supported.</p>
+                    <p className="text-sm text-gray-400">Apple's CIRAWFilter decodes your 12–14 bit sensor data natively. Fujifilm, Nikon, Sony, Canon, Panasonic, Leica, and Olympus all supported.</p>
                   </div>
                 </li>
                 <li className="flex gap-4">

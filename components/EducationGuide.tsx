@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, ChevronUp, BookOpen, Monitor, Layers, Sliders, Palette, Zap, Eye, Camera, FileImage, Cpu, Settings } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, BookOpen, Monitor, Layers, Sliders, Palette, Zap, Eye, Camera, FileImage, Cpu } from 'lucide-react';
 
 interface SectionProps {
   number: string;
@@ -102,7 +102,6 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
     { id: 'heic-technology', label: 'HDR HEIC Format' },
     { id: 'raw-workflow', label: 'RAW Workflow' },
     { id: 'raw-vs-camera', label: 'RAW vs In-Camera HDR' },
-    { id: 'app-features', label: 'App Features' },
   ];
 
   return (
@@ -121,7 +120,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
             <BookOpen className="w-4 h-4" />
             <span className="hidden sm:inline">HDR Photography Education Guide</span>
           </div>
-          <div className="w-16 text-right text-xs text-gray-600 font-mono">11 topics</div>
+          <div className="w-16 text-right text-xs text-gray-600 font-mono">10 topics</div>
         </div>
       </div>
 
@@ -541,7 +540,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
                     <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Processing pipeline</div>
                     {[
                       ['Camera sensor', 'Captures light as raw electrical measurements (12–14 bit Bayer/X-Trans mosaic)'],
-                      ['RAW file', 'Stores unprocessed sensor data — .RAF, .CR2/.CR3, .ARW, .RW2, .ORF, .DNG'],
+                      ['RAW file', 'Stores unprocessed sensor data — .RAF, .NEF/.NRW, .CR2/.CR3, .ARW, .RW2, .ORF, .DNG'],
                       ['CIRAWFilter', 'Apple\'s native RAW decoder: demosaicing + camera-specific colour profile applied'],
                       ['16-bit linear working space', 'Linear sRGB (from RAW decode) → XYZ (D65) → Rec.2020 linear RGB colour transform'],
                       ['HLG transfer function', 'BT.2100 HLG curve maps linear scene values including HDR highlights above 1.0'],
@@ -562,7 +561,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
                 <>
                   <p>The RAW → HDR HEIC pipeline used by raw2hdr:</p>
                   <ol className="list-decimal list-inside space-y-2 mt-2 text-gray-400">
-                    <li><span className="text-gray-300">RAW decode via CIRAWFilter:</span> Apple's native <code>CIRAWFilter</code> API decodes the Bayer/X-Trans mosaic, applies the camera's embedded colour profile, and outputs a 16-bit linear CIImage. Supports RAF, CR2/CR3, ARW, RW2, ORF, DNG.</li>
+                    <li><span className="text-gray-300">RAW decode via CIRAWFilter:</span> Apple's native <code>CIRAWFilter</code> API decodes the Bayer/X-Trans mosaic, applies the camera's embedded colour profile, and outputs a 16-bit linear CIImage. Supports RAF, NEF/NRW, CR2/CR3, ARW, RW2, ORF, DNG.</li>
                     <li><span className="text-gray-300">Editor adjustments:</span> Exposure (±3 EV), contrast, highlights, shadows, black point, white balance, saturation, and vibrance are applied in linear light. Noise reduction (luminance &amp; chroma NR via <code>CIRAWFilter</code>) is applied at this stage.</li>
                     <li><span className="text-gray-300">LUT application (optional, Pro):</span> 33-grid 3D cube LUTs (.cube) are applied in the appropriate input colour space (sRGB, F-Log2, V-Log, L-Log, or linear), then converted to Rec.2020 linear for consistency.</li>
                     <li><span className="text-gray-300">Colour transform to Rec.2020:</span> Linear sRGB (CIRAWFilter output) → XYZ (D65) → Rec.2020 linear RGB. CIRAWFilter already outputs linear light — there is no gamma-encoded sRGB step. This preserves the wide-gamut colour information captured by the sensor.</li>
@@ -626,58 +625,6 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
                     <li><span className="text-gray-300">16-bit processing chain:</span> RAW workflows maintain 16-bit precision throughout, avoiding the rounding errors that accumulate in 8-bit JPEG editing.</li>
                     <li><span className="text-gray-300">Non-destructive gain map generation:</span> The relationship between the SDR tone-mapped image and the original linear data is deterministic. The gain map accurately captures what was lost in SDR conversion, enabling precise HDR reconstruction on compatible displays.</li>
                     <li><span className="text-gray-300">Camera HDR output formats:</span> Sony, Fujifilm, and others produce RAW+JPEG bracketed pairs or in-camera tone-mapped JPEGs. None produce HDR HEIC or HDR10 output natively as of 2025 — that step requires desktop or mobile post-processing.</li>
-                  </ul>
-                </>
-              }
-            />
-          </div>
-
-          {/* ── Section 11 ── */}
-          <div id="app-features" className="scroll-mt-20">
-            <Section
-              number="11"
-              icon={<Settings className="w-5 h-5 text-teal-400" />}
-              accentColor="bg-teal-500/10"
-              title="raw2hdr — App Features"
-              subtitle="A complete on-device RAW processing and HDR authoring tool for iPhone"
-              plain={
-                <>
-                  <p>
-                    raw2hdr handles the entire workflow — from importing a RAW file to exporting finished HDR HEIC — without needing any desktop software. Everything runs on your iPhone using Apple's native processing APIs.
-                  </p>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {[
-                      { title: 'Film Simulation LUTs (Pro)', desc: '50+ curated 3D LUTs for Fujifilm (PROVIA, Velvia, ASTIA, Classic Chrome, ACROS, ETERNA…), Panasonic V-Log, Leica, classic film stocks, and cinematic grades. Live scrollable preview strip.' },
-                      { title: 'Advanced Editor', desc: 'Exposure (±3 EV), contrast, highlights, shadows, black point, white balance, saturation, vibrance. Live histogram shows clipping in real time. One-tap auto exposure.' },
-                      { title: 'Noise Reduction', desc: 'ISO-aware: the app reads ISO from your RAW and suggests optimal NR strength. Loupe magnifier for pixel-level inspection with edge-detection overlay.' },
-                      { title: 'Lens Correction', desc: 'Automatic distortion and vignetting correction from a built-in lens database. Manual A/B/C distortion and K1/K2/K3 vignetting override for unsupported lenses.' },
-                      { title: '8 Frame Designs', desc: 'EXIF card, Split layout, Film strip (35mm sprocket holes), Journal (live weather + GPS), Palette (dominant colour swatches), and more. Fully customisable.' },
-                      { title: 'Batch Processing', desc: 'Import from Photos, Files, iCloud Drive, Dropbox, or Google Drive. Process multiple RAW files in one tap. Pro: export at 25%, 50%, 75%, or 100% resolution.' },
-                      { title: 'HDR / SDR Compare & Gallery', desc: 'Side-by-side split-screen comparison, full-screen viewer with pinch-to-zoom, slideshow mode, and image rotation saved to EXIF.' },
-                      { title: 'EXIF Preservation', desc: 'Camera make/model, lens, focal length, aperture, shutter speed, ISO, GPS, and timestamp carried through to every exported file.' },
-                    ].map((f, i) => (
-                      <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
-                        <div className="text-sm font-bold text-white">{f.title}</div>
-                        <div className="text-xs text-gray-400 leading-relaxed">{f.desc}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <Callout variant="note">
-                    <strong>Free vs Pro:</strong> The free tier includes HDR HEIC export, editor, histogram, noise reduction, lens correction, and frame designs — at 25% output resolution. <strong>Pro (one-time purchase)</strong> unlocks full-resolution export (25%/50%/75%/100%) and all 50+ Film Simulation LUTs. No subscription.
-                  </Callout>
-                </>
-              }
-              technical={
-                <>
-                  <p>Technical implementation highlights (v0.1.8):</p>
-                  <ul className="list-disc list-inside space-y-2 mt-2 text-gray-400">
-                    <li><span className="text-gray-300">RAW decode engine:</span> Apple <code>CIRAWFilter</code> — native iOS RAW decoder. Handles demosaicing, camera colour profiles, and white balance. Supports .RAF, .CR2/.CR3, .ARW, .RW2, .ORF, .DNG.</li>
-                    <li><span className="text-gray-300">Processing precision:</span> 16-bit CIImage pipeline throughout. All tone adjustments (exposure, contrast, shadows, highlights, black point) operate in linear light before the colour transform.</li>
-                    <li><span className="text-gray-300">Colour transform:</span> Linear sRGB (CIRAWFilter output) → XYZ (D65) → Rec.2020 linear RGB. CIRAWFilter decodes the RAW directly to linear light — the transform starts from linear sRGB, not gamma-encoded sRGB. Ensures wide-gamut BT.2020 primaries in the HDR output.</li>
-                    <li><span className="text-gray-300">HLG encoding:</span> BT.2100 HLG transfer function applied to Rec.2020 linear values. Output written via <code>CGImageDestination</code> with <code>kCGColorSpaceITUR_2100_HLG</code>. Encoded as 10-bit HEVC (Main 10 profile).</li>
-                    <li><span className="text-gray-300">LUT support:</span> 33-grid 3D cube (.cube) files. Multiple input gamma profiles supported: F-Log2, V-Log, L-Log, Mi-Log, sRGB. Real-time preview with cached linear RGB handles.</li>
-                    <li><span className="text-gray-300">Noise reduction:</span> Luminance and chrominance NR via <code>CIRAWFilter</code> NR parameters. ISO metadata read from EXIF to auto-suggest strength. Loupe shows edge-detected preview for precise tuning.</li>
-                    <li><span className="text-gray-300">Lens correction:</span> Lensfun database for per-lens distortion (A/B/C polynomial) and vignetting (K1/K2/K3) correction. Manual override available for unlisted lenses.</li>
                   </ul>
                 </>
               }
