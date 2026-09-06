@@ -323,7 +323,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
                     <li><span className="text-gray-300">10-bit:</span> 1,024 levels/channel. 1,073,741,824 total colours. The HDR10 and Apple EDR minimum. Quantisation error is reduced ~4× versus 8-bit, eliminating visible banding at typical viewing distances.</li>
                     <li><span className="text-gray-300">16-bit:</span> 65,536 levels/channel. Used internally in RAW processing pipelines (e.g., LibRaw, RawTherapee, Lightroom). Ensures that floating-point operations (exposure, curves, NR) do not accumulate rounding errors before final quantisation to 10-bit.</li>
                   </ul>
-                  <p className="mt-3">This application processes in 16-bit linear light before tone-mapping to PQ or EDR headroom, then quantises to 10-bit for the HEIC output. The gain map itself is typically stored at 8-bit per channel because it encodes relative brightness ratios (logarithmic space), not absolute colour values, so 8-bit precision is sufficient for smooth gain reconstruction.</p>
+                  <p className="mt-3">raw2hdr processes in 16-bit linear light throughout — exposure, colour grading, and highlight extension all happen at full floating-point precision — then encodes the result directly to the BT.2100 HLG transfer function and quantises to 10-bit for the HEIC output. There is no separate 8-bit gain-map layer: the recovered highlight data is part of the same single HLG signal, not a secondary brightness-ratio map composited on top of an SDR base image.</p>
                 </>
               }
             />
@@ -465,7 +465,7 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
                     <div><span className="text-gray-300">Rec.2020:</span> R(0.708, 0.292), G(0.170, 0.797), B(0.131, 0.046). Covers ~75.8% of CIE 1931 gamut. Narrower Rec.2020 primaries are monochromatic (on the spectral locus), which is physically optimal but requires laser-based or quantum-dot display technology for full reproduction.</div>
                   </div>
                   <p className="mt-3">Current best consumer displays (e.g., Apple XDR Pro) achieve ~98% DCI-P3. Wide-gamut quantum-dot OLED panels achieve ~90% Rec.2020. The gap between encoded gamut (Rec.2020) and display capability (P3) is handled by the OS colour management stack (ColorSync on Apple, ICC profiles on Windows), which gamut-maps out-of-gamut Rec.2020 primaries to the display's native gamut.</p>
-                  <p className="mt-3">This application outputs HDR HEIC with Display P3 or Rec.2020 primaries depending on the source RAW's colour space metadata, with the gain map encoded in linear light to preserve accuracy across the full tone scale.</p>
+                  <p className="mt-3">raw2hdr outputs HDR HEIC in the Rec.2020 wide gamut, converted from linear light so accuracy is preserved across the full tone scale — including the extended highlight range above SDR white, which is part of the same single HLG signal rather than a separate layer.</p>
                 </>
               }
             />
@@ -587,7 +587,10 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
                     Most modern cameras have an "HDR mode." It sounds like exactly what you'd want — but it has a significant limitation that most people don't realise.
                   </p>
                   <p>
-                    In-camera HDR typically takes two or three quick shots at different exposures, merges them, and saves the result as a JPEG. The problem: a JPEG is an SDR format. All that extra dynamic range that was captured gets compressed back down to standard range. You end up with a tone-mapped image that's still SDR at its core.
+                    On most phones and older camera bodies, "HDR mode" typically takes two or three quick shots at different exposures, merges them, and saves the result as a JPEG. The problem: a JPEG is an SDR format. All that extra dynamic range that was captured gets compressed back down to standard range. You end up with a tone-mapped image that's still SDR at its core.
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    (This is distinct from the genuine native HDR stills modes now available on several current camera bodies — Sony's HLG Still Image, Nikon's HLG-HEIF, Canon's HDR Shooting (PQ), and Panasonic's firmware-added HDR Photo Style. Those really do produce a single-signal HDR file, not a tone-mapped SDR JPEG. But each is tied to a specific current-generation body, can't be combined with a creative colour grade in the same shot, and only exists going forward from whenever that camera shipped — not from a RAW file already on your drive.)
                   </p>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-4 space-y-2">
@@ -620,11 +623,11 @@ const EducationGuide: React.FC<{ onClose?: () => void }> = () => {
                 <>
                   <p>Key technical advantages of RAW-based HDR over in-camera processing:</p>
                   <ul className="list-disc list-inside space-y-2 mt-2 text-gray-400">
-                    <li><span className="text-gray-300">Sensor headroom utilisation:</span> Modern sensors have ~12–14 stops of DR. In-camera JPEG output is quantised to 8-bit with a fixed tone curve, discarding the upper 4–6 stops of highlight data. RAW processing can recover this headroom and remap it to the HDR gain map.</li>
+                    <li><span className="text-gray-300">Sensor headroom utilisation:</span> Modern sensors have ~12–14 stops of DR. In-camera JPEG output is quantised to 8-bit with a fixed tone curve, discarding the upper 4–6 stops of highlight data. RAW processing can recover this headroom and extend it directly into the HDR portion of the HLG signal.</li>
                     <li><span className="text-gray-300">No motion artifacts:</span> In-camera bracketing (even at 1/1000s between frames) introduces ghosting for any subject movement. Single-RAW processing avoids this entirely.</li>
                     <li><span className="text-gray-300">16-bit processing chain:</span> RAW workflows maintain 16-bit precision throughout, avoiding the rounding errors that accumulate in 8-bit JPEG editing.</li>
-                    <li><span className="text-gray-300">Non-destructive gain map generation:</span> The relationship between the SDR tone-mapped image and the original linear data is deterministic. The gain map accurately captures what was lost in SDR conversion, enabling precise HDR reconstruction on compatible displays.</li>
-                    <li><span className="text-gray-300">Camera HDR output formats:</span> Sony, Fujifilm, and others produce RAW+JPEG bracketed pairs or in-camera tone-mapped JPEGs. None produce HDR HEIC or HDR10 output natively as of 2025 — that step requires desktop or mobile post-processing.</li>
+                    <li><span className="text-gray-300">Single-signal HDR encode:</span> The relationship between the SDR-equivalent range and the extended highlight range is handled entirely within one HLG signal — there is no separate map to keep in sync with the base image, and no risk of the two desynchronising after a later edit or crop.</li>
+                    <li><span className="text-gray-300">Camera HDR output formats:</span> Several current bodies do produce genuine native HDR stills in-camera — Sony (HLG Still Image on the a1, a7R V, a9 III, a7 IV, a6700), Nikon (HLG HEIF on the Z8, Z9, Z6III), Canon (HDR Shooting (PQ) on the R5 Mark II, R3, R6, 1D X Mark III), and Panasonic (HDR (HLG) Photo Style, added by firmware to the S1R II, S1 II, S1 IIE). Fujifilm has no native HDR stills mode at all — its HLG support is video-only. None of these in-camera HDR modes let you apply a creative colour grade in the same pass, and each is tied to a specific current-generation body rather than being available from any supported RAW file.</li>
                   </ul>
                 </>
               }

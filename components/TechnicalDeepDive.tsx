@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Cpu, Layers, Sliders, Zap, Eye,
   Camera, FileImage, Settings, Monitor, Code, GitBranch, Film, Database,
-  Gauge, Sparkles, Triangle, ChevronDown,
+  Gauge, Sparkles, Triangle, ChevronDown, Scale,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -375,21 +375,22 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
     return () => clearTimeout(t);
   }, [location.hash]);
   const tocItems = [
-    { id: 'demosaic',   label: '01. RAW Demosaic' },
-    { id: 'pipeline',   label: '02. Color Pipeline' },
-    { id: 'lens',       label: '03. Lens Correction' },
-    { id: 'lut-engine', label: '04. 3D LUT Engine' },
-    { id: 'logprofile', label: '05. Log Profile System' },
-    { id: 'metering',   label: '06. Exposure Metering' },
-    { id: 'cache',      label: '07. LUT Cache' },
-    { id: 'hdr-lut',    label: '08. HDR LUT Problem' },
-    { id: 'tiff',       label: '09. Why TIFF & DNG Fall Short' },
-    { id: 'gainmap',    label: '10. Gain Map vs Raw-Native' },
-    { id: 'hlg',        label: '11. HLG Encoding' },
-    { id: 'canvas',     label: '12. HDR Canvas Problem' },
-    { id: 'filmicfx',   label: '13. Filmic F/X & Frames' },
-    { id: 'arch',       label: '14. Architectural Overview' },
-    { id: 'references', label: '15. References' },
+    { id: 'demosaic',        label: '01. RAW Demosaic' },
+    { id: 'pipeline',        label: '02. Color Pipeline' },
+    { id: 'rendering-engines', label: '03. Rendering Engines Compared' },
+    { id: 'lens',            label: '04. Lens Correction' },
+    { id: 'lut-engine',      label: '05. 3D LUT Engine' },
+    { id: 'logprofile',      label: '06. Log Profile System' },
+    { id: 'metering',        label: '07. Exposure Metering' },
+    { id: 'cache',           label: '08. LUT Cache' },
+    { id: 'hdr-lut',         label: '09. HDR LUT Problem' },
+    { id: 'tiff',            label: '10. Why TIFF & DNG Fall Short' },
+    { id: 'gainmap',         label: '11. Gain Map vs Raw-Native' },
+    { id: 'hlg',             label: '12. HLG Encoding' },
+    { id: 'canvas',          label: '13. HDR Canvas Problem' },
+    { id: 'filmicfx',        label: '14. Filmic F/X & Frames' },
+    { id: 'arch',            label: '15. Architectural Overview' },
+    { id: 'references',      label: '16. References' },
   ];
 
   return (
@@ -403,7 +404,7 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             <Cpu className="w-4 h-4" />
             <span className="hidden sm:inline">Technical Deep Dive</span>
           </div>
-          <div className="w-20 text-right text-xs text-gray-600 font-mono">15 chapters</div>
+          <div className="w-20 text-right text-xs text-gray-600 font-mono">16 chapters</div>
         </div>
       </div>
 
@@ -569,10 +570,152 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
               <p>Correcting vignetting by multiplying by the inverse of the attenuation factor is physically exact <em>only</em> when the signal is in linear light. If the signal has been log-encoded or gamma-encoded, the correction becomes a non-multiplicative operation in the encoded space — producing systematic tonal errors that are different for highlights and shadows.</p>
               <p>Similarly, geometric distortion correction involves remapping pixel positions with bilinear interpolation between neighbours. Averaging two neighbouring linear values produces the physically correct intermediate value. Averaging two log-encoded or gamma-encoded values produces a systematically different result, by an amount that grows with the local gradient. This is why correction must come first — before any non-linear encoding touches the data.</p>
             </DetailsPanel>
+
+            <Callout variant="info">
+              Every manufacturer's proprietary "colour science" — Hasselblad's HNCS, Fujifilm's Film Simulation, Sony's Creative Look, Nikon's Picture Control, Canon's Picture Style, Panasonic's Photo Style, Leica's Looks — lives in exactly this one architectural slot: the Rendering stage, after the neutral linear buffer, before display encode. <a href="#rendering-engines" onClick={(e) => { e.preventDefault(); document.getElementById('rendering-engines')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-blue-400 hover:text-blue-300 underline underline-offset-2">See Chapter 03 for a full manufacturer-by-manufacturer comparison →</a>
+            </Callout>
           </Section>
 
           {/* ─── 03 ─── */}
-          <Section id="lens" number="03" icon={<Eye className="w-5 h-5 text-indigo-400" />}
+          <Section id="rendering-engines" number="03" icon={<Scale className="w-5 h-5 text-rose-400" />}
+            accentColor="bg-rose-500/10" gradientFrom="from-rose-300"
+            title="Rendering Engines Compared" subtitle="Every manufacturer's colour science lives in the same architectural slot. Here is what each one actually does there.">
+
+            <p>Every RAW pipeline — Hasselblad, Sony, Fujifilm, Nikon, Canon, Panasonic, Leica, raw2hdr — agrees on the first half of the chain: black-level correction, demosaic, white balance, colour-matrix conversion into scene-referred linear RGB. That half is mostly physics. The fork is the next stage, <strong className="text-white">Rendering</strong>, where flat linear data becomes a finished image via a colour transform, a tone/film curve, and some form of highlight handling — every manufacturer names it differently, and every brand's "look" lives almost entirely inside it.</p>
+
+            <Callout variant="note">
+              <strong>A methodology note:</strong> camera manufacturers rarely publish internal ISP block diagrams. The claims below are restricted to what is officially documented or independently corroborated by technical reporting — full sourcing is in each panel below.
+            </Callout>
+
+            <Callout variant="info">
+              <strong>Video-log LUTs and stills rendering are two different systems.</strong> Fujifilm, Panasonic, Leica, Sony, Nikon, and Canon all officially publish real, distributable 3D LUTs (F-Log2, V-Log, L-Log, S-Log3, N-Log, C-Log3) — but every official download page frames them as post-production video-grading tools for NLE software (DaVinci Resolve, Premiere), not as the mechanism behind in-camera JPEG/HEIF stills. Whether Film Simulation, Photo Style, Creative Look, and the rest internally reuse that same LUT engine is not confirmed either way by any manufacturer — Fujifilm's own colour-science interviews describe Film Simulation only in terms of colour matrices and tone curves, with no mention of LUTs. Treat "stills rendering is a separate system" as a reasonable, evidence-supported inference, not a confirmed fact. (Panasonic is the one documented exception: V-Log is also selectable as a flat stills Photo Style, graded later with the same LUTs video uses.) One plausible reason for the split, though no manufacturer states it outright: video is typically shot once and graded later across many clips, which is exactly what a LUT-gradable log intermediate is for — a single stills JPEG has historically been rendered once, in-camera, with no separate grading step in the default workflow.
+            </Callout>
+
+            <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 overflow-hidden">
+              <div className="px-5 py-3 border-b border-zinc-800 text-xs font-mono text-gray-500 uppercase tracking-widest">Video-Log LUTs vs. Stills Rendering, by Manufacturer</div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-zinc-800">
+                      <th className="text-left px-4 py-2.5 text-gray-500 font-normal">Manufacturer</th>
+                      <th className="text-left px-4 py-2.5 text-gray-500 font-normal">Official video-log 3D LUT?</th>
+                      <th className="text-left px-4 py-2.5 text-gray-500 font-normal">Stills rendering system</th>
+                      <th className="text-left px-4 py-2.5 text-gray-500 font-normal">Same LUT used for stills?</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      ['Hasselblad', 'No published video-log LUT catalogue', 'HNCS — colour matrix + chroma LUT + Film Curve, officially named for stills', 'N/A — the LUT is part of the stills chain itself'],
+                      ['Sony', 'Yes — S-Log3/S-Gamut3.Cine LUTs, distributed for video grading', 'Creative Look — documented only as parametric curve/saturation sliders', 'Not confirmed — no stated link between S-Log LUTs and Creative Look rendering'],
+                      ['Fujifilm', 'Yes — F-Log2 LUTs, official download page frames them for video editing software', 'Film Simulation — described by Fujifilm\'s own colour scientists as matrices + tone curves, no LUT mentioned', 'Not confirmed — circumstantial evidence points to separate systems'],
+                      ['Nikon', 'Yes — N-Log LUTs, distributed for video grading', 'Picture Control — documented only as curve + saturation/hue parameters', 'Not confirmed — no stated link'],
+                      ['Canon', 'Yes — C-Log3/Cinema Gamut LUTs, explicitly tied to the Cinema EOS Log workflow', 'Picture Style — sharpness/contrast/saturation/colour-tone parameters, plus an 8-point tone curve tool in DPP', 'Not confirmed — Canon documents 3D LUTs only in the Cinema EOS context'],
+                      ['Panasonic', 'Yes — V-Log/V-Gamut LUTs, distributed for video grading', 'Photo Style — curve/parametric adjustments; V-Log is also selectable as a flat stills Photo Style', 'Partial — V-Log stills output is the same flat log encode video uses, graded later by the user, not an in-camera LUT render'],
+                      ['Leica', 'Yes — L-Log LUTs for SL3, distributed for video grading', 'Leica Looks — no published per-parameter adjustability or LUT mechanism documented for stills', 'Not confirmed — no stated link'],
+                      ['raw2hdr', 'N/A — no video-log workflow; RAW stills only', 'Neutral linear RAW is synthetically re-encoded into the target LUT\'s expected log curve and gamut, then the same 3D LUT format is applied', 'Yes by design — a LUT still requires log-encoded input to render correctly; raw2hdr synthesizes that encoding rather than skipping it'],
+                    ].map(([mfr, videoLut, stillsSys, same], i) => (
+                      <tr key={i} className={`border-b border-zinc-800/50 ${i % 2 === 0 ? 'bg-black/10' : ''} ${mfr === 'raw2hdr' ? 'bg-blue-500/5' : ''}`}>
+                        <td className={`px-4 py-2 font-medium align-top ${mfr === 'raw2hdr' ? 'text-blue-300' : 'text-white'}`}>{mfr}</td>
+                        <td className="px-4 py-2 text-gray-400 align-top">{videoLut}</td>
+                        <td className="px-4 py-2 text-gray-300 align-top">{stillsSys}</td>
+                        <td className="px-4 py-2 text-gray-400 align-top">{same}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="px-5 py-3 bg-zinc-900 border-t border-zinc-800">
+                <p className="text-xs text-gray-500">Sources: Fujifilm-x.com F-Log2 LUT download page & shopusa.fujifilm-x.com grading guide; Fuji Rumors interview with Fujifilm colour-science managers; Panasonic av.jpn.support.panasonic.com & pro-av.panasonic.net V-Log LUT libraries; Leica-camera.com SL3 L-Log downloads; Sony S-Log technical documentation (pro.sony); Canon Europe 3D LUTs / Cinema EOS explainer; PetaPixel coverage of Fujifilm's F-Log2 Film Simulation LUTs (Nov 2025); Hasselblad HNCS page.</p>
+              </div>
+            </div>
+
+            <Callout variant="info">
+              <strong>Where raw2hdr sits in this picture:</strong> a LUT authored for F-Log2 or V-Log still requires input encoded in that exact log curve and gamut to render correctly — feeding it raw linear data produces wrong contrast and colour, same as in a video workflow. raw2hdr doesn't skip that requirement; it synthesizes the correct log encoding mathematically from any supported camera's neutral linear decode, calibrated per format, before the LUT runs. Hasselblad remains the one exception above with an officially named LUT component inside the stills chain itself, rather than a separate video-only system.
+            </Callout>
+
+            <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 overflow-hidden">
+              <div className="px-5 py-3 border-b border-zinc-800 text-xs font-mono text-gray-500 uppercase tracking-widest">Highlight Recovery Mechanics</div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-zinc-800">
+                      <th className="text-left px-4 py-2.5 text-gray-500 font-normal">Manufacturer</th>
+                      <th className="text-left px-4 py-2.5 text-gray-500 font-normal">Named feature</th>
+                      <th className="text-left px-4 py-2.5 text-gray-500 font-normal">Confirmed mechanism</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      ['Hasselblad', 'Phocus highlight recovery / shadow fill', 'Slider-based RAW tool, separate from the HNCS base render — mechanism not fully documented, but not exposure-based at capture'],
+                      ['Sony', 'DRO (D-Range Optimizer)', 'Single-shot: analyses the captured scene and adjusts gamma curve + exposure in the render — not multi-exposure (Auto HDR is the separate multi-frame feature)'],
+                      ['Fujifilm', 'DR200 / DR400', 'Deliberately underexposes by 1 or 2 stops at capture, then applies a compensating tone curve at render to pull the shifted exposure back — an exposure-time trade-off, not post-hoc recovery from a normal exposure'],
+                      ['Nikon', 'Active D-Lighting', 'Deliberately underexposes the metered exposure, then applies a flatter tone curve in-camera to recover highlight/shadow detail — same underexpose-then-compensate mechanism as Fujifilm\'s DR modes'],
+                      ['Canon', 'Highlight Tone Priority (HTP)', 'Underexposes capture by roughly 1 stop, then applies a compensating tone curve — DPP can toggle this non-destructively on the same RAW, but the underlying mechanism is still exposure-time compensation'],
+                      ['Panasonic', 'iDynamic', 'Combines a metering-level exposure reduction (to protect highlights) with a shadow-lifting tone curve at render — exposure-based plus curve-based, not multi-shot'],
+                      ['Leica', '—', 'No named highlight-recovery feature documented for stills; RAW files reportedly retain recoverable headroom in third-party converters, but this is enthusiast-reported, not a documented Leica feature'],
+                      ['raw2hdr', 'Scene-linear highlight extension', 'Operates on a single, normally-exposed RAW — no deliberate underexposure at capture. The 3D LUT\'s SDR clip point is detected, and the original scene-linear value above that point (preserved from the RAW\'s native dynamic range) is extended into HDR headroom after the LUT runs'],
+                    ].map(([mfr, feat, mech], i) => (
+                      <tr key={i} className={`border-b border-zinc-800/50 ${i % 2 === 0 ? 'bg-black/10' : ''} ${mfr === 'raw2hdr' ? 'bg-blue-500/5' : ''}`}>
+                        <td className={`px-4 py-2 font-medium align-top ${mfr === 'raw2hdr' ? 'text-blue-300' : 'text-white'}`}>{mfr}</td>
+                        <td className="px-4 py-2 text-gray-300 align-top">{feat}</td>
+                        <td className="px-4 py-2 text-gray-400 align-top">{mech}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="px-5 py-3 bg-zinc-900 border-t border-zinc-800">
+                <p className="text-xs text-gray-500">Sources: Sony (D-Range Optimizer support page); Fujifilm (fujifilm-dsc.com RAW processing manual, jmpeltier.com tone-curve breakdown); Nikon (Z9 online manual, Active D-Lighting); Canon (DPP manual; jholko.com Highlight Tone Priority breakdown); Panasonic (DPReview forum technical discussion of iDynamic implementation); Hasselblad (tonalphoto.com Phocus highlight-recovery breakdown).</p>
+              </div>
+            </div>
+
+            <Callout variant="info">
+              <strong>The pattern across the table above:</strong> underexposing at capture and compensating with a curve is a real technique, but it's decided before the shutter fires and trades away midtone/shadow signal to buy highlight headroom. raw2hdr's extension instead works after the fact, per pixel, on a normally-exposed RAW's existing dynamic range — nothing is sacrificed or decided in advance.
+            </Callout>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[
+                { title: 'Any LUT, any camera', desc: 'A Fujifilm F-Log2 LUT only makes sense fed F-Log2 video; a Panasonic V-Log LUT only makes sense fed V-Log. raw2hdr synthesizes the correct log encoding from any supported RAW\'s neutral linear decode, so the same LUT — including manufacturer log-format LUTs — can be applied to any camera\'s RAW file, not just the one it was authored for.' },
+                { title: 'Grading and HDR extension are the same pass', desc: 'None of the manufacturer HDR-stills modes surveyed in this chapter support combining a creative colour grade with the HDR encode in a single operation — HDR mode and Picture Style/Photo Style/Creative Look are typically mutually exclusive in-camera. In raw2hdr, LUT application and HDR extension happen in one linear-light pass.' },
+              ].map((item, i) => (
+                <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="text-sm font-bold text-white">{item.title}</div>
+                  <div className="text-xs text-gray-400 leading-relaxed">{item.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            <DetailsPanel title="Hasselblad — HNCS" accent="border-rose-500/20">
+              <p>HNCS names three components: an illuminant-specific colour matrix (Tungsten, Low Tungsten, Flash, Flash-Daylight), a chroma/colour LUT, and a "Hasselblad Film Curve" — the only officially named LUT component inside a stills chain surveyed here (true 3D-cube status unspecified). Phocus highlight recovery is a separate slider-based RAW tool, distinct from the base render. The X2D II 100C's "HNCS HDR" is the one gain-map HDR implementation in this chapter.</p>
+            </DetailsPanel>
+
+            <DetailsPanel title="Sony — Creative Look and DRO" accent="border-rose-500/20">
+              <p>Each Creative Look is independently adjustable (Sony's Help Guide: Contrast, Highlights, Shadows, Fade, Saturation, Sharpness, Sharpness Range, Clarity), not an all-or-nothing preset. DRO analyses the captured scene and adjusts gamma/exposure on a single shot — not multi-frame (Auto HDR is Sony's separate bracketed feature). HLG Still Image (a1, a7R V, a9 III, a7 IV, a6700) is a native 10-bit HEIF encode, mutually exclusive with Creative Look and DRO.</p>
+            </DetailsPanel>
+
+            <DetailsPanel title="Fujifilm — Film Simulation and DR200/400" accent="border-rose-500/20">
+              <p>Recent bodies merged Highlight/Shadow tone into a single adjustable curve with live preview, plus independent Color and Sharpness per Film Simulation. X RAW Studio renders using the camera's own processor over USB, applying the identical in-camera algorithm rather than a desktop approximation. DR200/DR400 works by underexposing 1–2 stops at capture and compensating with a tone curve at render — an exposure-time trade-off. Fujifilm has no HDR stills capability at all; HLG exists only for video.</p>
+            </DetailsPanel>
+
+            <DetailsPanel title="Nikon — Picture Control and Active D-Lighting" accent="border-rose-500/20">
+              <p>Picture Control exposes Highlight tone, Shadow tone, Contrast, Brightness, Saturation, Hue, and Sharpening as independent sliders, not an all-or-nothing preset. Active D-Lighting underexposes the metered value, then applies a flatter in-camera tone curve — the same underexpose-then-compensate mechanism as Fujifilm's DR modes and Canon's HTP. Z8, Z9, and Z6III support native single-signal HLG-HEIF stills.</p>
+            </DetailsPanel>
+
+            <DetailsPanel title="Canon — Picture Style and Highlight Tone Priority" accent="border-rose-500/20">
+              <p>Picture Style parameters (sharpness, contrast, saturation, colour tone, plus filter/toning for some styles) are independently adjustable, and DPP adds a separate 8-point tone curve tool. Canon documents true 3D .cube LUTs only for its Cinema EOS Log workflow, not Picture Style. HTP underexposes ~1 stop and compensates with a tone curve — exposure-time compensation, not post-hoc recovery. Recent bodies (R5 Mark II, R3, R6, 1D X Mark III) support native PQ-encoded HDR stills.</p>
+            </DetailsPanel>
+
+            <DetailsPanel title="Panasonic — Photo Style, V-Log, and iDynamic" accent="border-rose-500/20">
+              <p>Photo Style has documented adjustable parameters (contrast, sharpness, saturation/colour, noise reduction), and LUMIX Lab adds a tone curve and HSL tool. iDynamic combines a metering-level exposure reduction with a shadow-lifting curve at render — the same exposure-plus-curve category as the others. HDR stills (10-bit HEIF, HLG) arrived via firmware specifically for the S1R II, S1 II, and S1 IIE — not the S5 II, S5 IIX, GH7, or G9 II.</p>
+            </DetailsPanel>
+
+            <DetailsPanel title="Leica — Looks, and the documentation gap" accent="border-rose-500/20">
+              <p>Leica Looks (pre-installed "Core Looks" plus downloadable "Essential Looks") is a real, current, named preset feature — contrary to Leica's older "no picture styles" reputation. Unlike the other five, Leica doesn't publish per-parameter adjustability within a Look, and no named highlight-recovery feature for stills was found. Leica FOTOS hands RAW editing to Lightroom, Capture One, or Darkroom rather than processing RAW natively — consistent with Leica publishing the least rendering-mechanism detail surveyed here. Stated as a documentation gap, not weaker engineering.</p>
+            </DetailsPanel>
+          </Section>
+
+          {/* ─── 04 ─── */}
+          <Section id="lens" number="04" icon={<Eye className="w-5 h-5 text-indigo-400" />}
             accentColor="bg-indigo-500/10" gradientFrom="from-indigo-300"
             title="Lens Correction" subtitle="Radial distortion and vignetting corrected in linear light — the only physically correct stage">
             <p>Lens correction is applied after demosaic but before log encoding, LUT application, or HDR extension. This staging reflects the physics of what lens distortions actually are.</p>
@@ -614,8 +757,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 04 ─── */}
-          <Section id="lut-engine" number="04" icon={<Layers className="w-5 h-5 text-teal-400" />}
+          {/* ─── 05 ─── */}
+          <Section id="lut-engine" number="05" icon={<Layers className="w-5 h-5 text-teal-400" />}
             accentColor="bg-teal-500/10" gradientFrom="from-teal-300"
             title="3D LUT Engine — Cross-Manufacturer Compatibility" subtitle="Synthetic log encoding from neutral linear — any LUT, any camera">
             <p>LUTs are authored for one specific input format. A Fujifilm PROVIA LUT expects F-Log2/F-Gamut signal. Feed it V-Log signal and every output dimension is wrong. This is the traditional reason camera brand and LUT brand must match.</p>
@@ -863,8 +1006,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 05 ─── */}
-          <Section id="logprofile" number="05" icon={<Settings className="w-5 h-5 text-cyan-400" />}
+          {/* ─── 06 ─── */}
+          <Section id="logprofile" number="06" icon={<Settings className="w-5 h-5 text-cyan-400" />}
             accentColor="bg-cyan-500/10" gradientFrom="from-cyan-300"
             title="Log Profile System" subtitle="Data-driven per-manufacturer calibration — adding a new format requires only a new profile">
             <p>Each manufacturer chose different log curve shapes, midpoint placements, and headroom ratios. None were coordinated across manufacturers. Rather than hardcoding these relationships, raw2hdr uses a fully data-driven profile system — adding support for a new log format requires only a new calibrated profile, with no changes to the processing pipeline itself.</p>
@@ -892,8 +1035,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 06 ─── */}
-          <Section id="metering" number="06" icon={<Gauge className="w-5 h-5 text-cyan-400" />}
+          {/* ─── 07 ─── */}
+          <Section id="metering" number="07" icon={<Gauge className="w-5 h-5 text-cyan-400" />}
             accentColor="bg-cyan-500/10" gradientFrom="from-cyan-300"
             title="Exposure Metering" subtitle="Center-weighted in software — consistent baseline across all 60+ LUT thumbnails">
             <p>Every LUT preview must share the same exposure baseline. Without this, brightness differences between thumbnails would reflect exposure variation rather than the LUT itself, making comparison unreliable.</p>
@@ -918,8 +1061,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 07 ─── */}
-          <Section id="cache" number="07" icon={<Database className="w-5 h-5 text-emerald-400" />}
+          {/* ─── 08 ─── */}
+          <Section id="cache" number="08" icon={<Database className="w-5 h-5 text-emerald-400" />}
             accentColor="bg-emerald-500/10" gradientFrom="from-emerald-300"
             title="LUT Thumbnail Cache Architecture" subtitle="One decode pass, every grade previewed instantly">
             <p>
@@ -951,8 +1094,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 08 ─── */}
-          <Section id="hdr-lut" number="08" icon={<Zap className="w-5 h-5 text-yellow-400" />}
+          {/* ─── 09 ─── */}
+          <Section id="hdr-lut" number="09" icon={<Zap className="w-5 h-5 text-yellow-400" />}
             accentColor="bg-yellow-500/10" gradientFrom="from-yellow-300"
             title="The HDR LUT Problem" subtitle="Recovering the highlights that SDR LUTs silently discard">
             <p>All commercially distributed film simulation LUTs produce <strong className="text-white">8-bit SDR output</strong>. Their maximum value is display white — anything brighter is clipped. The scene-linear values above SDR white were never discarded in raw2hdr; they flow through the pipeline in parallel with the log-encoded signal.</p>
@@ -997,8 +1140,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
 
           </Section>
 
-          {/* ─── 09 ─── */}
-          <Section id="tiff" number="09" icon={<FileImage className="w-5 h-5 text-amber-400" />}
+          {/* ─── 10 ─── */}
+          <Section id="tiff" number="10" icon={<FileImage className="w-5 h-5 text-amber-400" />}
             accentColor="bg-amber-500/10" gradientFrom="from-amber-300"
             title="Why 16-bit TIFF, PSD, and DNG Don't Solve the HDR Problem" subtitle="Bit depth alone is not enough — the format, the transfer function, and OS support must all align">
 
@@ -1067,8 +1210,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             <p>raw2hdr's output format is the intersection of three requirements: a transfer function the OS understands as HDR (HLG), a container that carries the non-ICC metadata describing it (HEIC with NCLX), and OS-level support on the target device. On iOS, all three align. That is why the same RAW file that looks flat as a TIFF or DNG can glow on an iPhone OLED screen as a raw2hdr HEIC.</p>
           </Section>
 
-          {/* ─── 10 ─── */}
-          <Section id="gainmap" number="10" icon={<Triangle className="w-5 h-5 text-orange-400" />}
+          {/* ─── 11 ─── */}
+          <Section id="gainmap" number="11" icon={<Triangle className="w-5 h-5 text-orange-400" />}
             accentColor="bg-orange-500/10" gradientFrom="from-orange-300"
             title="SDR + Gain Map vs. Raw-Native HDR" subtitle="Seven fundamental problems with compositing two separately-rendered sources">
             <p>The gain map approach — Apple HEIC gain map, Google Ultra HDR — composites an 8-bit JPEG base with a secondary brightness-boost map. When both layers come from a unified pipeline (as in iPhone Photonic Engine) this works. The problems arise when the layers are rendered independently.</p>
@@ -1178,8 +1321,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </div>
           </Section>
 
-          {/* ─── 11 ─── */}
-          <Section id="hlg" number="11" icon={<Monitor className="w-5 h-5 text-blue-400" />}
+          {/* ─── 12 ─── */}
+          <Section id="hlg" number="12" icon={<Monitor className="w-5 h-5 text-blue-400" />}
             accentColor="bg-blue-500/10" gradientFrom="from-blue-300"
             title="HLG Encoding" subtitle="Perceptual HDR without metadata fragility — the same file on every screen">
             <p>Two transfer functions dominate HDR: <strong className="text-white">PQ (SMPTE ST 2084)</strong> and <strong className="text-white">HLG (ITU-R BT.2100)</strong>. They represent fundamentally different philosophies.</p>
@@ -1249,8 +1392,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 12 ─── */}
-          <Section id="canvas" number="12" icon={<Sparkles className="w-5 h-5 text-pink-400" />}
+          {/* ─── 13 ─── */}
+          <Section id="canvas" number="13" icon={<Sparkles className="w-5 h-5 text-pink-400" />}
             accentColor="bg-pink-500/10" gradientFrom="from-pink-300"
             title="HDR Canvas Problem" subtitle="Every standard graphics API silently destroys HDR — and how raw2hdr avoids it">
             <p>Every standard 2D graphics system on iOS defaults to <strong className="text-white">8-bit sRGB compositing</strong>. Drawing a border, compositing a graphic overlay, or rendering text through any standard context irreversibly converts the pipeline to 8-bit, discarding all HDR data.</p>
@@ -1303,8 +1446,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 13 ─── */}
-          <Section id="filmicfx" number="13" icon={<Film className="w-5 h-5 text-amber-400" />}
+          {/* ─── 14 ─── */}
+          <Section id="filmicfx" number="14" icon={<Film className="w-5 h-5 text-amber-400" />}
             accentColor="bg-amber-500/10" gradientFrom="from-amber-300"
             title="Filmic F/X &amp; Frame Design" subtitle="Creative effects and compositional frames — both applied in the HDR buffer">
             <p>Film grain, light leaks, and lens flare are applied after the complete HLG encoding, directly onto the floating-point HLG pixel buffer. This means effects can reach brightness levels above SDR white — a light leak can genuinely glow, a flare can be brilliantly overexposed — rather than clipping at paper white the way any effect applied in a standard editing context would. The same applies to frame compositing: borders, typography, EXIF overlays, and graphic frame elements are all rendered in the same HDR-native context.</p>
@@ -1332,8 +1475,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </DetailsPanel>
           </Section>
 
-          {/* ─── 14 ─── */}
-          <Section id="arch" number="14" icon={<GitBranch className="w-5 h-5 text-violet-400" />}
+          {/* ─── 15 ─── */}
+          <Section id="arch" number="15" icon={<GitBranch className="w-5 h-5 text-violet-400" />}
             accentColor="bg-violet-500/10" gradientFrom="from-violet-300"
             title="Architectural Overview" subtitle="Why open-source RAW libraries aren't the answer on iOS — and what native Core Image solves">
 
@@ -1424,8 +1567,8 @@ const TechnicalDeepDive: React.FC<{ onClose?: () => void }> = () => {
             </div>
           </div>
 
-          {/* ─── 15 ─── */}
-          <Section id="references" number="15" icon={<Eye className="w-5 h-5 text-gray-400" />}
+          {/* ─── 16 ─── */}
+          <Section id="references" number="16" icon={<Eye className="w-5 h-5 text-gray-400" />}
             accentColor="bg-gray-500/10" gradientFrom="from-gray-300"
             title="References &amp; Standards" subtitle="Published specifications and research papers behind the techniques in this document">
             <DetailsPanel title="View all references" accent="border-gray-500/20">

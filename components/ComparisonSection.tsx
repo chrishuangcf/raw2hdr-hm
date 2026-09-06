@@ -45,14 +45,14 @@ const ComparisonSection: React.FC = () => {
                   <div className="flex-none w-8 h-8 rounded-full bg-red-900/30 flex items-center justify-center text-sm font-mono text-red-400">2</div>
                   <div>
                     <h4 className="font-semibold text-red-300">Tone-map and export to JPEG</h4>
-                    <p className="text-sm text-gray-500">In-camera HDR mode still outputs 8-bit JPEG. 94% of colour precision is discarded. Highlights look flat — not glowing.</p>
+                    <p className="text-sm text-gray-500">Bracketed HDR blending on most cameras and phones still tone-maps down to an 8-bit sRGB JPEG. Highlights look flat — not glowing — and none of the recovered dynamic range survives into the file.</p>
                   </div>
                 </li>
                 <li className="flex gap-4">
                   <div className="flex-none w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-sm font-mono text-gray-400">3</div>
                   <div>
                     <h4 className="font-semibold text-gray-300">Result: SDR in disguise</h4>
-                    <p className="text-sm text-gray-500">The output is still an SDR file — sRGB colour, 8-bit depth. Highlights clipped, shadows crushed. No HDR display benefit.</p>
+                    <p className="text-sm text-gray-500">The output is still an SDR file — sRGB colour, 8-bit depth. Highlights clipped, shadows crushed. No HDR display benefit. (Some current cameras do ship genuine native HDR stills modes — see the full manufacturer comparison in the Technical Deep Dive — but bracketed tone-mapped "HDR" on a JPEG output remains SDR regardless of the camera's marketing.)</p>
                   </div>
                 </li>
               </ul>
